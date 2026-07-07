@@ -23,7 +23,13 @@ class LaporanGlobalController extends BaseController
         }
 
         $prodi_id = session()->get('prodi_id');
-        $logbooks = $this->logbookModel->getAllLogbooksGlobal($role, $prodi_id);
+        
+        $filterTanggal = $this->request->getGet('tanggal');
+        $filterNama = $this->request->getGet('nama');
+        $filterProdi = $this->request->getGet('prodi');
+        $filterKelas = $this->request->getGet('kelas');
+
+        $logbooks = $this->logbookModel->getAllLogbooksGlobal($role, $prodi_id, $filterTanggal, $filterNama, $filterProdi, $filterKelas);
 
         // Rekapitulasi Statistik Sederhana
         $total = count($logbooks);
@@ -36,6 +42,17 @@ class LaporanGlobalController extends BaseController
             elseif ($log['status'] == 'pending') $pending++;
             else $revisi_ditolak++;
         }
+        
+        // Ambil daftar prodi khusus untuk pejabat/superadmin
+        $prodiList = [];
+        if (in_array($role, ['superadmin', 'pejabat'])) {
+            $prodiModel = new \App\Models\ProdiModel();
+            $prodiList = $prodiModel->findAll();
+        }
+
+        // Ambil daftar kelas untuk semua role yang punya akses laporan
+        $userModel = new \App\Models\UserModel();
+        $kelasList = $userModel->select('kelas')->where('kelas !=', null)->where('kelas !=', '')->distinct()->findAll();
 
         $data = [
             'title'          => 'Laporan Global Magang',
@@ -44,7 +61,13 @@ class LaporanGlobalController extends BaseController
             'total'          => $total,
             'disetujui'      => $disetujui,
             'pending'        => $pending,
-            'revisi_ditolak' => $revisi_ditolak
+            'revisi_ditolak' => $revisi_ditolak,
+            'filterTanggal'  => $filterTanggal,
+            'filterNama'     => $filterNama,
+            'filterProdi'    => $filterProdi,
+            'filterKelas'    => $filterKelas,
+            'prodiList'      => $prodiList,
+            'kelasList'      => $kelasList
         ];
 
         return view('laporan/index', $data);
