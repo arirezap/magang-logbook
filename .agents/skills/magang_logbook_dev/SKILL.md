@@ -50,3 +50,13 @@ Anda adalah AI Assistant utama untuk pengembangan aplikasi "Logbook Magang Haria
 - **Pemisahan Gaya (CSS):** DILARANG menggunakan *inline style* (seperti `style="color:red;"`) atau meletakkan blok `<style>` berukuran besar di dalam file *View*. Semua custom styling wajib disatukan ke dalam `public/css/style.css` menggunakan *class*.
 - **DRY (Don't Repeat Yourself):** Jangan menduplikasi kode. Jika logika yang sama dipakai berulang kali, pindahkan menjadi satu fungsi utuh di Model, Controller, atau Helper.
 - **Keterbacaan:** Berikan komentar singkat yang informatif dalam Bahasa Indonesia pada baris kode yang kompleks atau memuat alur krusial, demi kemudahan *maintainability* di masa depan.
+
+## 8. Manajemen Role & Hierarki Sistem (Update Terakhir)
+- **Daftar Role Valid (Strict ENUM):** `superadmin`, `admin_prodi`, `pejabat`, `pembimbing`, `taruna`. Segala bentuk pencocokan *role* di controller/view **WAJIB** menggunakan `strtolower(session()->get('role'))` untuk menghindari *bug case-sensitive*.
+- **Akses Data Pengguna (CRUD):** 
+  - `superadmin`: Akses penuh ke semua data pengguna lintas prodi.
+  - `admin_prodi`: Hanya bisa membuat/mengedit akun Dosen dan Taruna yang berada dalam **Prodi yang sama** dengan Admin tersebut.
+- **Relasi Pembimbing (1-to-Many):** Satu dosen pembimbing dapat membimbing lebih dari satu Taruna. Taruna terkait direlasikan melalui kolom `pembimbing_id` di tabel `users`.
+- **Akses Laporan & Bimbingan:**
+  - `pejabat` dan `admin_prodi`: Memiliki akses menu **Laporan Global** untuk memantau rekapitulasi data.
+  - `pembimbing`: Memiliki akses ke menu **Validasi Logbook** dan **Taruna Bimbingan** untuk memantau anak didiknya.
