@@ -1,0 +1,83 @@
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f8f9fa; /* Light Gray Background */
+}
+
+/* Top Navbar */
+.navbar-custom {
+    background-color: #0d47a1; /* Dominant Blue */
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    padding: 10px 0;
+}
+
+.navbar-custom .navbar-brand {
+    font-weight: 700;
+    color: #ffffff;
+    border-bottom: 2px solid #ffca28; /* Accent Yellow */
+    padding-bottom: 2px;
+    font-size: 1.3rem;
+}
+
+.navbar-custom .nav-link {
+    color: rgba(255, 255, 255, 0.85);
+    font-weight: 500;
+    padding: 10px 15px;
+    transition: 0.3s;
+    position: relative;
+}
+
+.navbar-custom .nav-link:hover, .navbar-custom .nav-link.active {
+    color: #ffffff;
+}
+
+.navbar-custom .nav-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: 5px;
+    left: 15px;
+    right: 15px;
+    height: 3px;
+    background-color: #ffca28; /* Accent Yellow */
+    border-radius: 3px;
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+}
+
+.user-profile .user-avatar {
+    width: 40px;
+    height: 40px;
+    background-color: #ffca28;
+    color: #0d47a1;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.2rem;
+    margin-right: 10px;
+}
+
+.user-info {
+    color: white;
+    line-height: 1.2;
+}
+
+/* Utilities Khusus Magang Logbook */
+#content {
+    margin-top: 2rem;
+}
+
+/* Override Bootstrap Primary Button to match our brand (Dominant Blue) */
+.btn-primary-custom {
+    background-color: #0d47a1 !important;
+    border-color: #0d47a1 !important;
+    color: #ffffff !important;
+}
+
+.btn-primary-custom:hover {
+    background-color: #0a367a !important;
+    border-color: #0a367a !important;
+}

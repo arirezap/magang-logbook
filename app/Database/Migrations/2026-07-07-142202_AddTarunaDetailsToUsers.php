@@ -1,0 +1,34 @@
+<?php
+
+namespace App\Database\Migrations;
+
+use CodeIgniter\Database\Migration;
+
+class AddTarunaDetailsToUsers extends Migration
+{
+    public function up()
+    {
+        $this->forge->addColumn('users', [
+            'jenjang' => [
+                'type'       => 'VARCHAR',
+                'constraint' => '50',
+                'null'       => true,
+            ],
+            'kelas' => [
+                'type'       => 'VARCHAR',
+                'constraint' => '50',
+                'null'       => true,
+            ],
+            'tempat_magang' => [
+                'type'       => 'VARCHAR',
+                'constraint' => '255',
+                'null'       => true,
+            ],
+        ]);
+    }
+
+    public function down()
+    {
+        $this->forge->dropColumn('users', ['jenjang', 'kelas', 'tempat_magang']);
+    }
+}
