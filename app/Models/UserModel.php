@@ -32,7 +32,7 @@ class UserModel extends Model
     protected $deletedField  = 'deleted_at';
 
     // Mengambil data pengguna beserta nama prodi dan nama pembimbingnya
-    public function getUsersWithDetails($user_role = null, $prodi_id = null)
+    public function getUsersWithDetails($user_role = null, $prodi_id = null, $filterNama = null, $filterProdi = null, $filterRole = null)
     {
         $builder = $this->select('users.*, prodi.nama_prodi, p.nama as nama_pembimbing')
                         ->join('prodi', 'prodi.id = users.prodi_id', 'left')
@@ -48,6 +48,17 @@ class UserModel extends Model
         } else {
             // Pejabat melihat Dosen dan Taruna dari seluruh prodi
             $builder->whereIn('users.role', ['taruna', 'pembimbing']);
+        }
+
+        // Terapkan Filter
+        if (!empty($filterNama)) {
+            $builder->like('users.nama', $filterNama);
+        }
+        if (!empty($filterProdi)) {
+            $builder->where('users.prodi_id', $filterProdi);
+        }
+        if (!empty($filterRole)) {
+            $builder->where('users.role', $filterRole);
         }
 
         return $builder->orderBy('users.role', 'ASC')->orderBy('users.nama', 'ASC')->findAll();

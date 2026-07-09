@@ -24,12 +24,29 @@ class UserController extends BaseController
         }
 
         $prodi_id = session()->get('prodi_id');
-        $users = $this->userModel->getUsersWithDetails($role, $prodi_id);
+        
+        // Membaca input filter dari request GET
+        $filterNama = $this->request->getGet('nama');
+        $filterProdi = $this->request->getGet('prodi');
+        $filterRole = $this->request->getGet('role');
+
+        $users = $this->userModel->getUsersWithDetails($role, $prodi_id, $filterNama, $filterProdi, $filterRole);
+
+        // Ambil daftar prodi khusus untuk pejabat/superadmin
+        $prodiList = [];
+        if (in_array($role, ['superadmin', 'pejabat'])) {
+            $prodiModel = new \App\Models\ProdiModel();
+            $prodiList = $prodiModel->getOrderedProdi();
+        }
 
         $data = [
-            'title'    => 'Data Pengguna',
-            'users'    => $users,
-            'userRole' => $role
+            'title'       => 'Data Pengguna',
+            'users'       => $users,
+            'userRole'    => $role,
+            'filterNama'  => $filterNama,
+            'filterProdi' => $filterProdi,
+            'filterRole'  => $filterRole,
+            'prodiList'   => $prodiList
         ];
 
         return view('users/index', $data);
@@ -43,8 +60,8 @@ class UserController extends BaseController
         }
 
         // Ambil data prodi dan dosen pembimbing untuk dropdown
-        $db = \Config\Database::connect();
-        $prodiList = $db->table('prodi')->get()->getResultArray();
+        $prodiModel = new \App\Models\ProdiModel();
+        $prodiList = $prodiModel->getOrderedProdi();
         
         // Pembimbing yang tersedia
         if ($role == 'admin_prodi') {
@@ -127,8 +144,8 @@ class UserController extends BaseController
             return redirect()->to('/users')->with('error', 'Data tidak berada di wewenang Anda.');
         }
 
-        $db = \Config\Database::connect();
-        $prodiList = $db->table('prodi')->get()->getResultArray();
+        $prodiModel = new \App\Models\ProdiModel();
+        $prodiList = $prodiModel->getOrderedProdi();
         
         if ($role == 'admin_prodi') {
             $pembimbingList = $this->userModel->where('role', 'pembimbing')->where('prodi_id', session()->get('prodi_id'))->findAll();

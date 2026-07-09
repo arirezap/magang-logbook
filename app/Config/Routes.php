@@ -36,4 +36,7 @@ $routes->group('', ['filter' => 'auth'], static function ($routes) {
 
     // Rute Laporan Global
     $routes->get('/laporan', 'LaporanGlobalController::index');
+
+    // Rute Profil Pengguna
+    $routes->get('/profile', 'DashboardController::profile');
 });

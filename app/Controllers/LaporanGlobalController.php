@@ -28,8 +28,9 @@ class LaporanGlobalController extends BaseController
         $filterNama = $this->request->getGet('nama');
         $filterProdi = $this->request->getGet('prodi');
         $filterKelas = $this->request->getGet('kelas');
+        $filterStatus = $this->request->getGet('status');
 
-        $logbooks = $this->logbookModel->getAllLogbooksGlobal($role, $prodi_id, $filterTanggal, $filterNama, $filterProdi, $filterKelas);
+        $logbooks = $this->logbookModel->getAllLogbooksGlobal($role, $prodi_id, $filterTanggal, $filterNama, $filterProdi, $filterKelas, $filterStatus);
 
         // Rekapitulasi Statistik Sederhana
         $total = count($logbooks);
@@ -47,7 +48,7 @@ class LaporanGlobalController extends BaseController
         $prodiList = [];
         if (in_array($role, ['superadmin', 'pejabat'])) {
             $prodiModel = new \App\Models\ProdiModel();
-            $prodiList = $prodiModel->findAll();
+            $prodiList = $prodiModel->getOrderedProdi();
         }
 
         // Ambil daftar kelas untuk semua role yang punya akses laporan
@@ -66,6 +67,7 @@ class LaporanGlobalController extends BaseController
             'filterNama'     => $filterNama,
             'filterProdi'    => $filterProdi,
             'filterKelas'    => $filterKelas,
+            'filterStatus'   => $filterStatus,
             'prodiList'      => $prodiList,
             'kelasList'      => $kelasList
         ];

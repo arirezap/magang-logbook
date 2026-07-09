@@ -5,59 +5,65 @@ body {
 
 /* Top Navbar */
 .navbar-custom {
-    background-color: #0d47a1; /* Dominant Blue */
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    background-color: #0b2545; /* Deep Navy */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     padding: 10px 0;
+    border-bottom: 3px solid #ffca28; /* Accent Yellow */
 }
 
 .navbar-custom .navbar-brand {
-    font-weight: 700;
-    color: #ffffff;
-    border-bottom: 2px solid #ffca28; /* Accent Yellow */
+    font-weight: 800;
+    color: #ffffff !important;
+    font-size: 1.35rem;
+    letter-spacing: 0.5px;
     padding-bottom: 2px;
-    font-size: 1.3rem;
 }
 
 .navbar-custom .nav-link {
-    color: rgba(255, 255, 255, 0.85);
+    color: rgba(255, 255, 255, 0.75) !important;
     font-weight: 500;
-    padding: 10px 15px;
-    transition: 0.3s;
-    position: relative;
+    padding: 8px 16px !important;
+    border-radius: 8px;
+    margin: 0 3px;
+    transition: all 0.2s ease;
 }
 
-.navbar-custom .nav-link:hover, .navbar-custom .nav-link.active {
-    color: #ffffff;
+.navbar-custom .nav-link:hover {
+    color: #ffffff !important;
+    background-color: rgba(255, 255, 255, 0.06);
 }
 
-.navbar-custom .nav-link.active::after {
-    content: '';
-    position: absolute;
-    bottom: 5px;
-    left: 15px;
-    right: 15px;
-    height: 3px;
-    background-color: #ffca28; /* Accent Yellow */
-    border-radius: 3px;
+.navbar-custom .nav-link.active {
+    color: #ffffff !important;
+    background-color: rgba(255, 255, 255, 0.12);
+    font-weight: 600;
 }
 
 .user-profile {
     display: flex;
     align-items: center;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+}
+
+.user-profile:hover {
+    opacity: 0.85;
 }
 
 .user-profile .user-avatar {
     width: 40px;
     height: 40px;
     background-color: #ffca28;
-    color: #0d47a1;
+    color: #0b2545;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: bold;
-    font-size: 1.2rem;
-    margin-right: 10px;
+    font-weight: 800;
+    font-size: 1.25rem;
+    margin-right: 12px;
+    border: 2px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .user-info {
@@ -81,3 +87,462 @@ body {
     background-color: #0a367a !important;
     border-color: #0a367a !important;
 }
+
+/* ==========================================================================
+   Login Redesign - Split Layout (UI/UX Pro Max)
+   ========================================================================== */
+.login-split-container {
+    min-height: 100vh;
+    display: flex;
+    background-color: #ffffff;
+}
+
+.login-brand-side {
+    background: linear-gradient(135deg, #0b2545 0%, #134074 100%);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 60px;
+    color: #ffffff;
+}
+
+/* Subtle decorative mesh grid background */
+.login-brand-side::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+    background-size: 24px 24px;
+    opacity: 0.8;
+    pointer-events: none;
+}
+
+/* Dynamic glowing soft light effect */
+.login-brand-side::after {
+    content: '';
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(255, 202, 40, 0.12) 0%, transparent 70%);
+    top: 20%;
+    right: -10%;
+    pointer-events: none;
+}
+
+.brand-side-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.brand-side-logo i {
+    color: #ffca28; /* Accent Yellow */
+    font-size: 1.8rem;
+}
+
+.brand-side-content {
+    max-width: 480px;
+    z-index: 2;
+}
+
+.brand-side-title {
+    font-size: 2.8rem;
+    font-weight: 800;
+    line-height: 1.2;
+    margin-bottom: 20px;
+}
+
+.brand-side-subtitle {
+    font-size: 1.1rem;
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: 400;
+    line-height: 1.6;
+}
+
+.brand-side-footer {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.5);
+    z-index: 2;
+}
+
+.login-form-side {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    background-color: #ffffff;
+}
+
+.login-form-wrapper {
+    width: 100%;
+    max-width: 400px;
+}
+
+.login-form-title {
+    color: #0b2545;
+    font-weight: 800;
+    font-size: 2rem;
+    margin-bottom: 8px;
+}
+
+.login-form-subtitle {
+    color: #64748b;
+    font-size: 0.95rem;
+    margin-bottom: 32px;
+}
+
+/* Premium Form Fields */
+.input-group-custom {
+    position: relative;
+    margin-bottom: 24px;
+}
+
+.input-group-custom label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #334155;
+    margin-bottom: 8px;
+}
+
+.input-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-container i.input-icon {
+    position: absolute;
+    left: 16px;
+    color: #94a3b8;
+    font-size: 1.1rem;
+    transition: color 0.2s ease;
+}
+
+.input-field {
+    width: 100%;
+    padding: 14px 16px 14px 46px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    color: #1e293b;
+    background-color: #f8fafc;
+    transition: all 0.2s ease;
+}
+
+.input-field:focus {
+    border-color: #0d47a1;
+    background-color: #ffffff;
+    box-shadow: 0 0 0 4px rgba(13, 71, 161, 0.1);
+    outline: none;
+}
+
+.input-field:focus + i.input-icon {
+    color: #0d47a1;
+}
+
+/* Toggle Password Visibility */
+.password-toggle {
+    position: absolute;
+    right: 16px;
+    background: none;
+    border: none;
+    color: #94a3b8;
+    font-size: 1.1rem;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s ease;
+}
+
+.password-toggle:hover {
+    color: #0b2545;
+}
+
+/* Premium Login Button */
+.btn-login {
+    background-color: #0d47a1;
+    color: #ffffff;
+    border: none;
+    padding: 14px;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 12px;
+    width: 100%;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 12px rgba(13, 71, 161, 0.2);
+}
+
+.btn-login:hover {
+    background-color: #0a367a;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(13, 71, 161, 0.3);
+}
+
+.btn-login:active {
+    transform: translateY(0);
+}
+
+/* Premium Alert styles */
+.alert-premium {
+    background-color: #fef2f2;
+    border: 1px solid #fee2e2;
+    color: #991b1b;
+    padding: 14px 16px;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.alert-premium i {
+    font-size: 1.25rem;
+    color: #ef4444;
+}
+
+/* Dashboard Bento Styling */
+.welcome-gradient-card {
+    background: linear-gradient(135deg, #0b2545 0%, #134074 100%) !important;
+    color: #ffffff !important;
+    position: relative;
+    overflow: hidden;
+}
+
+.welcome-gradient-card::after {
+    content: '';
+    position: absolute;
+    width: 250px;
+    height: 250px;
+    background: radial-gradient(circle, rgba(255, 202, 40, 0.15) 0%, transparent 70%);
+    top: -50px;
+    right: -50px;
+    pointer-events: none;
+}
+
+.dashboard-stat-card {
+    border: none !important;
+    border-radius: 16px !important;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02) !important;
+    background-color: #ffffff;
+}
+
+.dashboard-stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px rgba(11, 37, 69, 0.08) !important;
+}
+
+.stat-icon-wrapper {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    font-weight: 700;
+}
+
+/* Color schemes for stats icons and borders */
+.stat-primary {
+    background-color: rgba(13, 71, 161, 0.1);
+    color: #0d47a1;
+}
+
+.stat-success {
+    background-color: rgba(25, 135, 84, 0.1);
+    color: #198754;
+}
+
+.stat-warning {
+    background-color: rgba(255, 193, 7, 0.1);
+    color: #ffc107;
+}
+
+.stat-danger {
+    background-color: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+}
+
+.stat-info {
+    background-color: rgba(13, 202, 240, 0.1);
+    color: #0dcaf0;
+}
+
+.info-bento-box {
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 16px;
+    transition: all 0.2s ease;
+}
+
+.info-bento-box:hover {
+    background-color: #f1f5f9;
+    border-color: #cbd5e1;
+}
+
+/* User List Actions & Custom Badges */
+.btn-action-edit {
+    background-color: rgba(13, 71, 161, 0.08) !important;
+    color: #0d47a1 !important;
+    border: none !important;
+    border-radius: 8px !important;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.btn-action-edit:hover {
+    background-color: #0d47a1 !important;
+    color: #ffffff !important;
+}
+
+.btn-action-delete {
+    background-color: rgba(220, 53, 69, 0.08) !important;
+    color: #dc3545 !important;
+    border: none !important;
+    border-radius: 8px !important;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.btn-action-delete:hover {
+    background-color: #dc3545 !important;
+    color: #ffffff !important;
+}
+
+.badge-taruna {
+    background-color: rgba(13, 71, 161, 0.1) !important;
+    color: #0d47a1 !important;
+    font-weight: 600;
+    font-size: 0.82rem;
+    padding: 6px 14px !important;
+    border-radius: 8px !important;
+}
+
+.badge-pembimbing {
+    background-color: rgba(25, 135, 84, 0.1) !important;
+    color: #198754 !important;
+    font-weight: 600;
+    font-size: 0.82rem;
+    padding: 6px 14px !important;
+    border-radius: 8px !important;
+}
+
+.alert-success-premium {
+    background-color: #f0fdf4 !important;
+    border: 1px solid #dcfce7 !important;
+    color: #166534 !important;
+}
+
+.alert-success-premium i {
+    color: #22c55e !important;
+}
+
+/* Custom Premium Form Elements */
+.form-label-custom {
+    display: block;
+    font-size: 0.8rem !important;
+    font-weight: 700 !important;
+    color: #475569 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    margin-bottom: 8px !important;
+}
+
+.form-control-custom, .form-select-custom {
+    border: 1.5px solid #e2e8f0 !important;
+    border-radius: 10px !important;
+    background-color: #f8fafc !important;
+    padding: 10px 14px !important;
+    font-size: 0.92rem !important;
+    color: #1e293b !important;
+    transition: all 0.2s ease !important;
+}
+
+.form-control-custom:focus, .form-select-custom:focus {
+    border-color: #0d47a1 !important;
+    background-color: #ffffff !important;
+    box-shadow: 0 0 0 4px rgba(13, 71, 161, 0.1) !important;
+    outline: none !important;
+}
+
+.form-text-custom {
+    font-size: 0.8rem !important;
+    color: #64748b !important;
+    margin-top: 6px !important;
+}
+
+/* Logbook Status Badges */
+.badge-status-disetujui {
+    background-color: rgba(25, 135, 84, 0.1) !important;
+    color: #198754 !important;
+    font-weight: 600;
+    font-size: 0.82rem;
+    padding: 6px 14px !important;
+    border-radius: 8px !important;
+}
+
+.badge-status-pending {
+    background-color: rgba(255, 193, 7, 0.12) !important;
+    color: #856404 !important;
+    font-weight: 600;
+    font-size: 0.82rem;
+    padding: 6px 14px !important;
+    border-radius: 8px !important;
+}
+
+.badge-status-revisi {
+    background-color: rgba(220, 53, 69, 0.08) !important;
+    color: #dc3545 !important;
+    font-weight: 600;
+    font-size: 0.82rem;
+    padding: 6px 14px !important;
+    border-radius: 8px !important;
+}
+
+.kegiatan-text {
+    font-size: 0.88rem;
+    line-height: 1.6;
+    color: #334155;
+    white-space: pre-wrap;
+}
+
+.catatan-pembimbing-box {
+    margin-top: 10px;
+    padding: 10px 14px;
+    background-color: #fffbeb;
+    border-left: 3.5px solid #d97706;
+    border-radius: 8px;
+    color: #92400e;
+    font-size: 0.82rem;
+    line-height: 1.5;
+}
+
+.alert-warning-premium {
+    background-color: #fffbeb !important;
+    border: 1px solid #fef3c7 !important;
+    color: #92400e !important;
+}
+
+.alert-warning-premium i {
+    color: #f59e0b !important;
+}
+
+
+
+
+
+
