@@ -3,14 +3,17 @@
 namespace App\Controllers;
 
 use App\Models\UserModel;
+use App\Models\PenugasanMagangModel;
 
 class BimbinganController extends BaseController
 {
     protected $userModel;
+    protected $penugasanModel;
 
     public function __construct()
     {
         $this->userModel = new UserModel();
+        $this->penugasanModel = new PenugasanMagangModel();
     }
 
     public function index()
@@ -22,13 +25,15 @@ class BimbinganController extends BaseController
 
         $pembimbing_id = session()->get('id');
         
-        // Ambil data taruna yang dibimbing oleh dosen ini
-        $tarunas = $this->userModel->select('users.*, prodi.nama_prodi')
-                                   ->join('prodi', 'prodi.id = users.prodi_id', 'left')
-                                   ->where('users.role', 'taruna')
-                                   ->where('users.pembimbing_id', $pembimbing_id)
-                                   ->orderBy('users.nama', 'ASC')
-                                   ->findAll();
+        // Ambil data taruna yang dibimbing oleh dosen ini melalui tabel penugasan_magang (aktif)
+        $builder = $this->penugasanModel->builder();
+        $tarunas = $builder->select('users.*, prodi.nama_prodi, penugasan_magang.tempat_magang as tempat_magang, penugasan_magang.tahun_ajaran, penugasan_magang.periode')
+                           ->join('users', 'users.id = penugasan_magang.taruna_id')
+                           ->join('prodi', 'prodi.id = users.prodi_id', 'left')
+                           ->where('penugasan_magang.pembimbing_id', $pembimbing_id)
+                           ->where('penugasan_magang.status_aktif', true)
+                           ->orderBy('users.nama', 'ASC')
+                           ->get()->getResultArray();
 
         $data = [
             'title'   => 'Daftar Taruna Bimbingan',

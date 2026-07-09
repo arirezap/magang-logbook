@@ -67,15 +67,27 @@
  
                     <!-- Menu Khusus Admin/Pejabat/Superadmin -->
                     <?php if(in_array(strtolower(session()->get('role')), ['admin_prodi', 'pejabat', 'superadmin'])): ?>
-                    <li class="nav-item">
-                        <a class="nav-link <?= ($current_route == 'users') ? 'active' : '' ?>" href="<?= base_url('/users') ?>">
-                            Data Pengguna
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle <?= ($current_route == 'input-data-taruna' || $current_route == 'input-data-dosen') ? 'active' : '' ?>" href="#" id="masterDataDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Master Data
                         </a>
+                        <ul class="dropdown-menu border-0 shadow-sm rounded-3 mt-2" aria-labelledby="masterDataDropdown">
+                            <li><a class="dropdown-item <?= ($current_route == 'input-data-taruna') ? 'active' : '' ?>" href="<?= base_url('/input-data-taruna') ?>">Input Data Taruna</a></li>
+                            <li><a class="dropdown-item <?= ($current_route == 'input-data-dosen') ? 'active' : '' ?>" href="<?= base_url('/input-data-dosen') ?>">Input Data Dosen</a></li>
+                        </ul>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link <?= ($current_route == 'laporan') ? 'active' : '' ?>" href="<?= base_url('/laporan') ?>">
-                            Laporan Global
+                            Laporan
                         </a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle <?= ($current_route == 'users') ? 'active' : '' ?>" href="#" id="pengaturanDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Pengaturan
+                        </a>
+                        <ul class="dropdown-menu border-0 shadow-sm rounded-3 mt-2" aria-labelledby="pengaturanDropdown">
+                            <li><a class="dropdown-item <?= ($current_route == 'users') ? 'active' : '' ?>" href="<?= base_url('/users') ?>">Data Pengguna</a></li>
+                        </ul>
                     </li>
                     <?php endif; ?>
                 </ul>

@@ -114,10 +114,8 @@ class MassiveSeeder extends Seeder
                         'password' => $password,
                         'role' => 'taruna',
                         'prodi_id' => $prodiId,
-                        'pembimbing_id' => $dosenId,
                         'jenjang' => $jenjang,
                         'kelas' => $kelas,
-                        'tempat_magang' => 'Dinas Perhubungan ' . $faker->city,
                         'created_at' => date('Y-m-d H:i:s'),
                         'updated_at' => date('Y-m-d H:i:s'),
                     ]);

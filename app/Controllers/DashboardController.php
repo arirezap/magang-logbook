@@ -40,14 +40,23 @@ class DashboardController extends BaseController
         $role = strtolower($user['role']);
         
         if ($role == 'taruna') {
+            $penugasanModel = new \App\Models\PenugasanMagangModel();
+            $penugasan = $penugasanModel->where('taruna_id', $user['id'])
+                                        ->where('status_aktif', true)
+                                        ->first();
+            if ($penugasan) {
+                $user['tempat_magang'] = $penugasan['tempat_magang'];
+            }
+
             $stats['total'] = $logbookModel->where('user_id', $user['id'])->countAllResults();
             $stats['disetujui'] = $logbookModel->where('user_id', $user['id'])->where('status', 'disetujui')->countAllResults();
             $stats['pending'] = $logbookModel->where('user_id', $user['id'])->where('status', 'pending')->countAllResults();
             $stats['revisi'] = $logbookModel->where('user_id', $user['id'])->where('status', 'revisi')->countAllResults();
         } elseif ($role == 'pembimbing') {
-            $stats['total_taruna'] = $userModel->where('pembimbing_id', $user['id'])->where('role', 'taruna')->countAllResults();
-            $stats['pending_validasi'] = $logbookModel->join('users', 'users.id = logbooks.user_id')
-                                                      ->where('users.pembimbing_id', $user['id'])
+            $penugasanModel = new \App\Models\PenugasanMagangModel();
+            $stats['total_taruna'] = $penugasanModel->where('pembimbing_id', $user['id'])->where('status_aktif', true)->countAllResults();
+            $stats['pending_validasi'] = $logbookModel->join('penugasan_magang pm', 'pm.id = logbooks.penugasan_id')
+                                                      ->where('pm.pembimbing_id', $user['id'])
                                                       ->where('logbooks.status', 'pending')
                                                       ->countAllResults();
         } elseif ($role == 'admin_prodi') {
@@ -80,10 +89,22 @@ class DashboardController extends BaseController
     public function profile()
     {
         $userModel = new \App\Models\UserModel();
-        $user = $userModel->select('users.*, prodi.nama_prodi, p.nama as nama_pembimbing')
+        $user = $userModel->select('users.*, prodi.nama_prodi')
                           ->join('prodi', 'prodi.id = users.prodi_id', 'left')
-                          ->join('users p', 'p.id = users.pembimbing_id', 'left')
                           ->find(session()->get('id'));
+
+        if ($user && $user['role'] == 'taruna') {
+            $penugasanModel = new \App\Models\PenugasanMagangModel();
+            $penugasan = $penugasanModel->select('penugasan_magang.tempat_magang, p.nama as nama_pembimbing')
+                                        ->join('users p', 'p.id = penugasan_magang.pembimbing_id', 'left')
+                                        ->where('taruna_id', $user['id'])
+                                        ->where('status_aktif', true)
+                                        ->first();
+            if ($penugasan) {
+                $user['tempat_magang'] = $penugasan['tempat_magang'];
+                $user['nama_pembimbing'] = $penugasan['nama_pembimbing'];
+            }
+        }
 
         $data = [
             'title' => 'Profil Saya',

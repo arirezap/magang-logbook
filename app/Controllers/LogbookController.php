@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\LogbookModel;
+use App\Models\PenugasanMagangModel;
 
 class LogbookController extends BaseController
 {
@@ -70,6 +71,12 @@ class LogbookController extends BaseController
             return redirect()->back()->withInput()->with('validation', $this->validator->getErrors());
         }
 
+        // Mencegah input tanggal di masa depan
+        $tanggalInput = $this->request->getPost('tanggal');
+        if ($tanggalInput > date('Y-m-d')) {
+            return redirect()->back()->withInput()->with('validation', ['tanggal' => 'Tidak dapat mengisi logbook untuk tanggal di masa depan.']);
+        }
+
         // Mencegah input laporan ganda di tanggal yang sama
         $existingLogbook = $this->logbookModel
                                 ->where('user_id', session()->get('id'))
@@ -80,9 +87,13 @@ class LogbookController extends BaseController
             return redirect()->back()->withInput()->with('validation', ['tanggal' => 'Anda sudah mengisi laporan logbook pada tanggal tersebut.']);
         }
 
+        $penugasanModel = new PenugasanMagangModel();
+        $penugasan = $penugasanModel->getActivePenugasan(session()->get('id'));
+
         // Simpan data
         $this->logbookModel->save([
             'user_id'     => session()->get('id'),
+            'penugasan_id'=> $penugasan ? $penugasan['id'] : null,
             'tanggal'     => $this->request->getPost('tanggal'),
             'kegiatan'    => $this->request->getPost('kegiatan'),
             'dokumentasi' => $this->request->getPost('dokumentasi'),
@@ -139,6 +150,12 @@ class LogbookController extends BaseController
 
         if (!$this->validate($rules, $messages)) {
             return redirect()->back()->withInput()->with('validation', $this->validator->getErrors());
+        }
+
+        // Mencegah input tanggal di masa depan
+        $tanggalInput = $this->request->getPost('tanggal');
+        if ($tanggalInput > date('Y-m-d')) {
+            return redirect()->back()->withInput()->with('validation', ['tanggal' => 'Tidak dapat mengisi logbook untuk tanggal di masa depan.']);
         }
 
         // Mencegah duplikasi tanggal saat update (kecuali tanggal miliknya sendiri)

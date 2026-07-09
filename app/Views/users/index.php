@@ -43,8 +43,8 @@
             <h6 class="card-title fw-bold text-muted mb-3"><i class="bi bi-funnel"></i> Filter Pencarian</h6>
             <form method="get" action="<?= base_url('/users') ?>" class="row g-3">
                 <div class="col-12 <?= in_array($userRole, ['superadmin', 'pejabat']) ? 'col-md-4' : 'col-md-6' ?>">
-                    <label for="nama" class="form-label text-muted small fw-bold text-uppercase" style="font-size: 0.8rem; letter-spacing: 0.5px;">Nama Pengguna</label>
-                    <input type="text" class="form-control form-control-custom" id="nama" name="nama" placeholder="Cari nama..." value="<?= esc($filterNama ?? '') ?>">
+                    <label for="nama" class="form-label text-muted small fw-bold text-uppercase" style="font-size: 0.8rem; letter-spacing: 0.5px;">Pencarian</label>
+                    <input type="text" class="form-control form-control-custom" id="nama" name="nama" placeholder="Pencarian..." value="<?= esc($filterNama ?? '') ?>">
                 </div>
 
                 <?php if (in_array($userRole, ['superadmin', 'pejabat'])): ?>

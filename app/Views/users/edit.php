@@ -81,19 +81,11 @@
                             <?php endif; ?>
                         </div>
                         
-                        <div class="col-12 col-md-6" id="pembimbingWrapper">
-                            <label class="form-label-custom">Dosen Pembimbing</label>
-                            <select class="form-select form-select-custom" name="pembimbing_id">
-                                <option value="">-- Pilih Dosen (Opsional) --</option>
-                                <?php foreach($pembimbingList as $dsn): ?>
-                                    <option value="<?= $dsn['id'] ?>" <?= ($userEdit['pembimbing_id'] == $dsn['id']) ? 'selected' : '' ?>><?= esc($dsn['nama']) ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
+                        <!-- Pembimbing ID dihilangkan dari tabel users -->
                     </div>
 
                     <div class="row g-4 mb-4" id="tarunaExtraWrapper">
-                        <div class="col-12 col-md-4">
+                        <div class="col-12 col-md-6">
                             <label class="form-label-custom">Jenjang</label>
                             <select class="form-select form-select-custom" name="jenjang">
                                 <option value="">Pilih Jenjang</option>
@@ -101,13 +93,9 @@
                                 <option value="D4" <?= ($userEdit['jenjang'] == 'D4') ? 'selected' : '' ?>>D4</option>
                             </select>
                         </div>
-                        <div class="col-12 col-md-4">
+                        <div class="col-12 col-md-6">
                             <label class="form-label-custom">Kelas</label>
                             <input type="text" class="form-control form-control-custom" name="kelas" value="<?= esc(old('kelas', $userEdit['kelas'])) ?>" placeholder="Misal: A, B">
-                        </div>
-                        <div class="col-12 col-md-4">
-                            <label class="form-label-custom">Tempat Magang</label>
-                            <input type="text" class="form-control form-control-custom" name="tempat_magang" value="<?= esc(old('tempat_magang', $userEdit['tempat_magang'])) ?>" placeholder="Instansi/Perusahaan">
                         </div>
                     </div>
                 </div>
@@ -131,7 +119,6 @@
             const roleSelect = document.getElementById('roleSelect');
             const dynamicFields = document.getElementById('dynamicFields');
             const prodiWrapper = document.getElementById('prodiWrapper');
-            const pembimbingWrapper = document.getElementById('pembimbingWrapper');
             const tarunaExtraWrapper = document.getElementById('tarunaExtraWrapper');
             const prodiSelect = document.getElementById('prodiSelect');
 
@@ -147,19 +134,17 @@
 
                 if (role === 'taruna') {
                     prodiWrapper.style.display = 'block';
-                    pembimbingWrapper.style.display = 'block';
                     tarunaExtraWrapper.style.display = 'flex';
                     if(prodiSelect) prodiSelect.required = true;
                 } 
                 else if (role === 'pembimbing' || role === 'admin_prodi') {
+                    dynamicFields.style.display = 'block';
                     prodiWrapper.style.display = 'block';
-                    pembimbingWrapper.style.display = 'none';
                     tarunaExtraWrapper.style.display = 'none';
                     if(prodiSelect) prodiSelect.required = true;
                 } 
                 else {
                     prodiWrapper.style.display = 'none';
-                    pembimbingWrapper.style.display = 'none';
                     tarunaExtraWrapper.style.display = 'none';
                     if(prodiSelect) prodiSelect.required = false;
                 }

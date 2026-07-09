@@ -18,10 +18,8 @@ class UserModel extends Model
         'password', 
         'role', 
         'prodi_id', 
-        'pembimbing_id',
         'jenjang',
-        'kelas',
-        'tempat_magang'
+        'kelas'
     ];
 
     // Dates
@@ -34,9 +32,8 @@ class UserModel extends Model
     // Mengambil data pengguna beserta nama prodi dan nama pembimbingnya
     public function getUsersWithDetails($user_role = null, $prodi_id = null, $filterNama = null, $filterProdi = null, $filterRole = null)
     {
-        $builder = $this->select('users.*, prodi.nama_prodi, p.nama as nama_pembimbing')
-                        ->join('prodi', 'prodi.id = users.prodi_id', 'left')
-                        ->join('users p', 'p.id = users.pembimbing_id', 'left');
+        $builder = $this->select('users.*, prodi.nama_prodi')
+                        ->join('prodi', 'prodi.id = users.prodi_id', 'left');
 
         if ($user_role === 'superadmin') {
             // Superadmin melihat semua role kecuali dirinya sendiri
@@ -52,7 +49,10 @@ class UserModel extends Model
 
         // Terapkan Filter
         if (!empty($filterNama)) {
-            $builder->like('users.nama', $filterNama);
+            $builder->groupStart()
+                    ->like('users.nama', $filterNama)
+                    ->orLike('users.nomor_induk', $filterNama)
+                    ->groupEnd();
         }
         if (!empty($filterProdi)) {
             $builder->where('users.prodi_id', $filterProdi);

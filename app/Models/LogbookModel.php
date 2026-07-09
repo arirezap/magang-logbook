@@ -13,6 +13,7 @@ class LogbookModel extends Model
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
     protected $allowedFields    = [
+        'penugasan_id',
         'user_id', 
         'tanggal', 
         'kegiatan', 
@@ -29,23 +30,42 @@ class LogbookModel extends Model
     protected $deletedField  = 'deleted_at';
 
     // Fungsi custom untuk Dosen Pembimbing
-    public function getLogbooksForPembimbing($pembimbing_id)
+    public function getLogbooksForPembimbing($pembimbing_id, $filterTanggal = null, $filterNama = null, $filterStatus = null)
     {
-        return $this->select('logbooks.*, users.nama as nama_taruna, users.nomor_induk as notar_taruna, prodi.nama_prodi, users.kelas')
+        $builder = $this->select('logbooks.*, users.nama as nama_taruna, users.nomor_induk as notar_taruna, prodi.nama_prodi, users.kelas, pm.tempat_magang as tempat_magang_logbook, pm.tahun_ajaran, pm.periode')
                     ->join('users', 'users.id = logbooks.user_id')
-                    ->join('prodi', 'prodi.id = users.prodi_id', 'left') // Untuk informasi kelas Taruna
-                    ->where('users.pembimbing_id', $pembimbing_id)
-                    ->orderBy('logbooks.created_at', 'DESC') // Tampilkan yang terbaru dibuat di atas
-                    ->findAll();
+                    ->join('prodi', 'prodi.id = users.prodi_id', 'left')
+                    ->join('penugasan_magang pm', 'pm.id = logbooks.penugasan_id', 'left')
+                    ->where('pm.pembimbing_id', $pembimbing_id);
+                    
+        if (!empty($filterTanggal)) {
+            $builder->where('logbooks.tanggal', $filterTanggal);
+        }
+
+        if (!empty($filterNama)) {
+            $builder->groupStart()
+                    ->like('users.nama', $filterNama)
+                    ->orLike('users.nomor_induk', $filterNama)
+                    ->groupEnd();
+        }
+
+        if (!empty($filterStatus)) {
+            $builder->where('logbooks.status', $filterStatus);
+        }
+
+        return $builder->orderBy('logbooks.created_at', 'DESC')->findAll();
     }
+
 
     // Fungsi custom untuk Laporan Global (Admin Prodi, Pejabat & Superadmin)
     public function getAllLogbooksGlobal($role, $prodi_id, $filterTanggal = null, $filterNama = null, $filterProdi = null, $filterKelas = null, $filterStatus = null)
     {
-        $builder = $this->select('logbooks.*, users.nama as nama_taruna, users.nomor_induk as notar_taruna, prodi.nama_prodi, users.kelas, p.nama as nama_pembimbing')
+        $builder = $this->select('logbooks.*, users.nama as nama_taruna, users.nomor_induk as notar_taruna, prodi.nama_prodi, users.kelas, pm.tempat_magang as tempat_magang_logbook, pm.tahun_ajaran, pm.periode, pp.nama as nama_pembimbing')
                     ->join('users', 'users.id = logbooks.user_id')
                     ->join('prodi', 'prodi.id = users.prodi_id', 'left')
-                    ->join('users p', 'p.id = users.pembimbing_id', 'left');
+                    ->join('penugasan_magang pm', 'pm.id = logbooks.penugasan_id', 'left')
+                    ->join('users pp', 'pp.id = pm.pembimbing_id', 'left'); // new
+                    
                     
         // Jika admin prodi, filter berdasarkan prodi_id miliknya
         if ($role === 'admin_prodi' && !empty($prodi_id)) {
@@ -59,7 +79,10 @@ class LogbookModel extends Model
         }
 
         if (!empty($filterNama)) {
-            $builder->like('users.nama', $filterNama);
+            $builder->groupStart()
+                    ->like('users.nama', $filterNama)
+                    ->orLike('users.nomor_induk', $filterNama)
+                    ->groupEnd();
         }
         
         if (!empty($filterKelas)) {

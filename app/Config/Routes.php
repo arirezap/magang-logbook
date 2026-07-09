@@ -37,6 +37,18 @@ $routes->group('', ['filter' => 'auth'], static function ($routes) {
     // Rute Laporan Global
     $routes->get('/laporan', 'LaporanGlobalController::index');
 
+    // Rute Input Data Taruna
+    $routes->get('/input-data-taruna', 'PenugasanController::index');
+    $routes->post('/input-data-taruna/store', 'PenugasanController::store');
+    $routes->post('/input-data-taruna/import', 'PenugasanController::importExcel');
+    $routes->get('/input-data-taruna/template', 'PenugasanController::downloadTemplate');
+
+    // Rute Input Data Dosen
+    $routes->get('/input-data-dosen', 'DosenController::index');
+    $routes->post('/input-data-dosen/store', 'DosenController::store');
+    $routes->post('/input-data-dosen/import', 'DosenController::importExcel');
+    $routes->get('/input-data-dosen/template', 'DosenController::downloadTemplate');
+
     // Rute Profil Pengguna
     $routes->get('/profile', 'DashboardController::profile');
 });

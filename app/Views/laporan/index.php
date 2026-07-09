@@ -76,8 +76,8 @@
                 </div>
 
                 <div class="col-12 col-md-3">
-                    <label for="nama" class="form-label-custom">Nama Taruna</label>
-                    <input type="text" class="form-control form-control-custom" id="nama" name="nama" placeholder="Cari nama taruna..." value="<?= esc($filterNama ?? '') ?>">
+                    <label for="nama" class="form-label-custom">Pencarian</label>
+                    <input type="text" class="form-control form-control-custom" id="nama" name="nama" placeholder="Pencarian..." value="<?= esc($filterNama ?? '') ?>">
                 </div>
 
                 <div class="col-12 <?= in_array($userRole, ['superadmin', 'pejabat']) ? 'col-md-2' : 'col-md-3' ?>">

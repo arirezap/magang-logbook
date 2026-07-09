@@ -21,17 +21,26 @@ class ValidasiLogbookController extends BaseController
         }
 
         $pembimbing_id = session()->get('id');
-        $logbooks = $this->logbookModel->getLogbooksForPembimbing($pembimbing_id);
+
+        // Baca parameter filter dari GET
+        $filterTanggal = $this->request->getGet('tanggal') ?? date('Y-m-d');
+        $filterNama   = $this->request->getGet('nama');
+        $filterStatus = $this->request->getGet('status');
+
+        $logbooks = $this->logbookModel->getLogbooksForPembimbing($pembimbing_id, $filterTanggal, $filterNama, $filterStatus);
 
         $data = [
-            'title'    => 'Validasi Logbook Taruna',
-            'logbooks' => $logbooks
+            'title'        => 'Validasi Logbook Taruna',
+            'logbooks'     => $logbooks,
+            'filterTanggal'=> $filterTanggal,
+            'filterNama'   => $filterNama,
+            'filterStatus' => $filterStatus,
         ];
 
         return view('validasi/index', $data);
     }
 
-    public function action($id)
+    public function updateStatus($id)
     {
         // Pastikan hanya pembimbing yang bisa melakukan aksi validasi
         if (session()->get('role') !== 'pembimbing') {
@@ -42,6 +51,14 @@ class ValidasiLogbookController extends BaseController
 
         if (!$logbook) {
             return redirect()->to('/validasi')->with('error', 'Data logbook tidak ditemukan.');
+        }
+
+        // Security check: Pastikan logbook ini milik taruna di bawah pembimbing yang login
+        $penugasanModel = new \App\Models\PenugasanMagangModel();
+        $penugasan = $penugasanModel->find($logbook['penugasan_id']);
+        
+        if (!$penugasan || $penugasan['pembimbing_id'] != session()->get('id')) {
+            return redirect()->to('/validasi')->with('error', 'Akses ditolak. Logbook ini bukan milik taruna bimbingan Anda.');
         }
 
         // Tangkap input dari Modal

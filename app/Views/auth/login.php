@@ -12,6 +12,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Custom Style CSS -->
     <link href="<?= base_url('css/style.css') ?>" rel="stylesheet">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="<?= base_url('images/logo-pktj.png') ?>">
+    <link rel="shortcut icon" type="image/png" href="<?= base_url('images/logo-pktj.png') ?>">
 </head>
 <body>
 

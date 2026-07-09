@@ -31,10 +31,8 @@ class SuperadminSeeder extends Seeder
             'password'      => password_hash('password123', PASSWORD_DEFAULT),
             'role'          => 'superadmin',
             'prodi_id'      => null,
-            'pembimbing_id' => null,
             'jenjang'       => null,
             'kelas'         => null,
-            'tempat_magang' => null,
             'created_at'    => date('Y-m-d H:i:s'),
             'updated_at'    => date('Y-m-d H:i:s'),
         ];

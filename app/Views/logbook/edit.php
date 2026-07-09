@@ -48,7 +48,7 @@
                         <!-- Tanggal Kegiatan -->
                         <div class="mb-4">
                             <label for="tanggal" class="form-label-custom">Tanggal Kegiatan <span class="text-danger">*</span></label>
-                            <input type="date" class="form-control form-control-custom" id="tanggal" name="tanggal" value="<?= old('tanggal') ?? substr($logbook['tanggal'], 0, 10) ?>" required>
+                            <input type="date" class="form-control form-control-custom" id="tanggal" name="tanggal" value="<?= old('tanggal') ?? substr($logbook['tanggal'], 0, 10) ?>" max="<?= date('Y-m-d') ?>" required>
                         </div>
                         
                         <!-- Deskripsi Kegiatan -->

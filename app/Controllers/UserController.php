@@ -113,8 +113,6 @@ class UserController extends BaseController
         if ($targetRole == 'taruna') {
             $userData['jenjang']       = $this->request->getPost('jenjang');
             $userData['kelas']         = $this->request->getPost('kelas');
-            $userData['tempat_magang'] = $this->request->getPost('tempat_magang');
-            $userData['pembimbing_id'] = $this->request->getPost('pembimbing_id') ?: null;
             
             // Admin prodi otomatis prodi-nya sendiri, Superadmin pilih dari form
             $userData['prodi_id'] = ($role == 'admin_prodi') ? session()->get('prodi_id') : $this->request->getPost('prodi_id');
@@ -206,8 +204,6 @@ class UserController extends BaseController
         if ($targetRole == 'taruna') {
             $userData['jenjang']       = $this->request->getPost('jenjang');
             $userData['kelas']         = $this->request->getPost('kelas');
-            $userData['tempat_magang'] = $this->request->getPost('tempat_magang');
-            $userData['pembimbing_id'] = $this->request->getPost('pembimbing_id') ?: null;
             
             $userData['prodi_id'] = ($role == 'admin_prodi') ? session()->get('prodi_id') : $this->request->getPost('prodi_id');
         } 
@@ -216,16 +212,12 @@ class UserController extends BaseController
             // Bersihkan field lain jika beralih role
             $userData['jenjang'] = null;
             $userData['kelas'] = null;
-            $userData['tempat_magang'] = null;
-            $userData['pembimbing_id'] = null;
         } 
         else {
             // Pejabat / Superadmin
             $userData['prodi_id'] = null;
             $userData['jenjang'] = null;
             $userData['kelas'] = null;
-            $userData['tempat_magang'] = null;
-            $userData['pembimbing_id'] = null;
         }
 
         $this->userModel->save($userData);

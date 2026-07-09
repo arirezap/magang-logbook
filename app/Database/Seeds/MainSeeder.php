@@ -24,10 +24,8 @@ class MainSeeder extends Seeder
             'password'      => password_hash('password123', PASSWORD_DEFAULT), // Default password
             'role'          => 'pembimbing',
             'prodi_id'      => $prodi_id,
-            'pembimbing_id' => null,
             'jenjang'       => null,
             'kelas'         => null,
-            'tempat_magang' => null,
             'created_at'    => date('Y-m-d H:i:s'),
             'updated_at'    => date('Y-m-d H:i:s'),
         ];
@@ -41,10 +39,8 @@ class MainSeeder extends Seeder
             'password'      => password_hash('password123', PASSWORD_DEFAULT),
             'role'          => 'taruna',
             'prodi_id'      => $prodi_id,
-            'pembimbing_id' => $pembimbing_id,
             'jenjang'       => 'D3',
             'kelas'         => 'A',
-            'tempat_magang' => 'DISHUB KOTA TEGAL',
             'created_at'    => date('Y-m-d H:i:s'),
             'updated_at'    => date('Y-m-d H:i:s'),
         ];
@@ -57,10 +53,8 @@ class MainSeeder extends Seeder
             'password'      => password_hash('password123', PASSWORD_DEFAULT),
             'role'          => 'admin_prodi',
             'prodi_id'      => $prodi_id,
-            'pembimbing_id' => null,
             'jenjang'       => null,
             'kelas'         => null,
-            'tempat_magang' => null,
             'created_at'    => date('Y-m-d H:i:s'),
             'updated_at'    => date('Y-m-d H:i:s'),
         ];
@@ -73,10 +67,8 @@ class MainSeeder extends Seeder
             'password'      => password_hash('password123', PASSWORD_DEFAULT),
             'role'          => 'pejabat',
             'prodi_id'      => null,
-            'pembimbing_id' => null,
             'jenjang'       => null,
             'kelas'         => null,
-            'tempat_magang' => null,
             'created_at'    => date('Y-m-d H:i:s'),
             'updated_at'    => date('Y-m-d H:i:s'),
         ];
