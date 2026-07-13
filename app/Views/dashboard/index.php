@@ -1,53 +1,53 @@
 <?= $this->extend('layouts/main') ?>
 
 <?= $this->section('content') ?>
-    <!-- Header Section -->
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-        <div>
-            <h2 class="fw-bold text-dark m-0" style="letter-spacing: -0.5px;">Dashboard</h2>
-            <p class="text-muted m-0" style="font-size: 0.9rem;">Selamat datang kembali di portal Logbook PKTJ.</p>
-        </div>
-        <?php
-            $bulan = [
-                1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
-                5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
-                9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
-            ];
-            $tanggalIndo = date('d') . ' ' . $bulan[(int)date('m')] . ' ' . date('Y');
-        ?>
-        <div class="d-flex align-items-center gap-2 bg-white px-3 py-2 rounded-3 shadow-sm border">
-            <i class="bi bi-calendar3 text-primary"></i>
-            <span class="fw-semibold text-secondary" style="font-size: 0.88rem;"><?= $tanggalIndo ?></span>
-        </div>
-    </div>
-
     <!-- Main Content -->
-    <div class="row g-4">
+    <div class="row g-4 mt-2">
         <!-- Welcome Card -->
         <div class="col-12">
-            <div class="card border-0 shadow-sm rounded-4 welcome-gradient-card">
+            <?php
+                $bulan = [
+                    1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+                    5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+                    9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+                ];
+                $tanggalIndo = date('d') . ' ' . $bulan[(int)date('m')] . ' ' . date('Y');
+            ?>
+            <div class="card border-0 shadow-sm rounded-4 welcome-gradient-card position-relative overflow-hidden">
+                <!-- Floating Date Badge (Desktop) -->
+                <div class="position-absolute top-0 end-0 m-4 d-none d-md-flex align-items-center gap-2 bg-white bg-opacity-25 px-3 py-2 rounded-pill" style="backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.2);">
+                    <i class="bi bi-calendar-event text-white"></i>
+                    <span class="fw-medium text-white" style="font-size: 0.85rem; letter-spacing: 0.5px;"><?= $tanggalIndo ?></span>
+                </div>
+                
                 <div class="card-body p-4 p-md-5">
                     <div class="row align-items-center">
                         <div class="col-lg-8 z-2">
-                            <span class="badge bg-warning text-dark fw-bold mb-3 px-3 py-2 rounded-pill text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.5px;"><?= esc(session()->get('role')) ?></span>
-                            <h3 class="card-title fw-bold text-white mb-2" style="font-size: 2.2rem; letter-spacing: -0.5px;">Selamat Datang, <?= esc($user['nama']) ?>!</h3>
+                            <span class="badge bg-white text-primary fw-bold mb-3 px-3 py-2 rounded-pill text-uppercase shadow-sm" style="font-size: 0.72rem; letter-spacing: 1px;"><?= esc(session()->get('role')) ?></span>
+                            <h3 class="card-title fw-bold text-white mb-3" style="font-size: 2.2rem; letter-spacing: -0.5px;">Selamat Datang, <?= esc($user['nama']) ?>!</h3>
                             
                             <?php if($user['role'] == 'taruna'): ?>
-                                <p class="card-text text-white-50 mb-0" style="font-size: 1.05rem; max-width: 600px; line-height: 1.6;">
-                                    Ini adalah halaman utama logbook magang Anda. Pastikan Anda mencatat setiap kegiatan harian secara rutin dan memantau status validasi dari dosen pembimbing.
+                                <p class="card-text text-white-50 mb-0" style="font-size: 1rem; max-width: 650px; line-height: 1.6; font-weight: 400;">
+                                    Ini adalah dasbor utama Logbook Magang Anda. Catat setiap kegiatan harian secara rutin dan pantau status validasi dari dosen pembimbing dengan mudah.
                                 </p>
                             <?php elseif($user['role'] == 'pembimbing'): ?>
-                                <p class="card-text text-white-50 mb-0" style="font-size: 1.05rem; max-width: 600px; line-height: 1.6;">
+                                <p class="card-text text-white-50 mb-0" style="font-size: 1rem; max-width: 650px; line-height: 1.6; font-weight: 400;">
                                     Sebagai dosen pembimbing, Anda bertugas untuk memantau, memeriksa, dan memvalidasi logbook kegiatan harian taruna bimbingan Anda secara berkala.
                                 </p>
                             <?php else: ?>
-                                <p class="card-text text-white-50 mb-0" style="font-size: 1.05rem; max-width: 600px; line-height: 1.6;">
-                                    Selamat bekerja! Anda memiliki hak akses penuh untuk mengelola pengguna, memantau laporan global, dan memastikan kelancaran administrasi magang taruna.
+                                <p class="card-text text-white-50 mb-0" style="font-size: 1rem; max-width: 650px; line-height: 1.6; font-weight: 400;">
+                                    Selamat bekerja! Anda memiliki hak akses penuh untuk mengelola pengguna, memantau laporan global, dan memastikan kelancaran administrasi magang.
                                 </p>
                             <?php endif; ?>
+                            
+                            <!-- Mobile Date Badge -->
+                            <div class="d-flex d-md-none align-items-center gap-2 mt-4 bg-white bg-opacity-25 px-3 py-2 rounded-pill d-inline-flex" style="backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.2);">
+                                <i class="bi bi-calendar-event text-white"></i>
+                                <span class="fw-medium text-white" style="font-size: 0.85rem; letter-spacing: 0.5px;"><?= $tanggalIndo ?></span>
+                            </div>
                         </div>
-                        <div class="col-lg-4 d-none d-lg-block text-end z-2">
-                            <i class="bi bi-person-workspace text-white-50" style="font-size: 7.5rem; opacity: 0.15;"></i>
+                        <div class="col-lg-4 d-none d-lg-block text-end z-2 position-absolute" style="right: -20px; bottom: -30px;">
+                            <i class="bi bi-person-workspace text-white" style="font-size: 12rem; opacity: 0.08;"></i>
                         </div>
                     </div>
                 </div>

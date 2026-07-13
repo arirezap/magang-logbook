@@ -59,7 +59,7 @@ class DashboardController extends BaseController
                                                       ->where('pm.pembimbing_id', $user['id'])
                                                       ->where('logbooks.status', 'pending')
                                                       ->countAllResults();
-        } elseif ($role == 'admin_prodi') {
+        } elseif (in_array($role, ['admin_prodi', 'kaprodi'])) {
             $stats['total_taruna'] = $userModel->where('role', 'taruna')->where('prodi_id', $user['prodi_id'])->countAllResults();
             $stats['total_pembimbing'] = $userModel->where('role', 'pembimbing')->where('prodi_id', $user['prodi_id'])->countAllResults();
             $stats['logbook_hari_ini'] = $logbookModel->join('users', 'users.id = logbooks.user_id')
@@ -70,7 +70,7 @@ class DashboardController extends BaseController
                                                      ->where('users.prodi_id', $user['prodi_id'])
                                                      ->where('logbooks.status', 'pending')
                                                      ->countAllResults();
-        } elseif (in_array($role, ['pejabat', 'superadmin'])) {
+        } elseif (in_array($role, ['direktur', 'wadir', 'kabag', 'superadmin'])) {
             $stats['total_taruna'] = $userModel->where('role', 'taruna')->countAllResults();
             $stats['total_pembimbing'] = $userModel->where('role', 'pembimbing')->countAllResults();
             $stats['logbook_hari_ini'] = $logbookModel->where('tanggal', date('Y-m-d'))->countAllResults();
@@ -112,5 +112,52 @@ class DashboardController extends BaseController
         ];
 
         return view('profile/index', $data);
+    }
+
+    public function updatePassword()
+    {
+        $userModel = new \App\Models\UserModel();
+        $userId = session()->get('id');
+        $user = $userModel->find($userId);
+
+        if (!$user) {
+            return redirect()->to('/profile')->with('error', 'Pengguna tidak ditemukan.');
+        }
+
+        // Validasi input
+        $rules = [
+            'old_password'     => 'required',
+            'new_password'     => 'required|min_length[6]',
+            'confirm_password' => 'required|matches[new_password]'
+        ];
+
+        $messages = [
+            'new_password' => [
+                'min_length' => 'Password baru minimal harus 6 karakter.'
+            ],
+            'confirm_password' => [
+                'matches' => 'Konfirmasi password tidak cocok dengan password baru.'
+            ]
+        ];
+
+        if (!$this->validate($rules, $messages)) {
+            return redirect()->back()->with('validation', $this->validator->getErrors());
+        }
+
+        // Verifikasi password lama
+        $oldPassword = $this->request->getPost('old_password');
+        if (!password_verify((string)$oldPassword, $user['password'])) {
+            return redirect()->back()->with('error', 'Password lama tidak sesuai.');
+        }
+
+        // Hash password baru dan simpan
+        $newPassword = $this->request->getPost('new_password');
+        $hashedPassword = password_hash((string)$newPassword, PASSWORD_DEFAULT);
+
+        $userModel->update($userId, [
+            'password' => $hashedPassword
+        ]);
+
+        return redirect()->to('/profile')->with('success', 'Password berhasil diubah.');
     }
 }

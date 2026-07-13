@@ -18,8 +18,8 @@ class UserController extends BaseController
     {
         $role = strtolower(session()->get('role'));
         
-        // Hanya Superadmin, Admin Prodi dan Pejabat yang bisa mengakses
-        if (!in_array($role, ['superadmin', 'admin_prodi', 'pejabat'])) {
+        // Hanya Superadmin, Admin Prodi, Kaprodi, Direktur, Wadir, dan Kabag yang bisa mengakses
+        if (!in_array($role, ['superadmin', 'admin_prodi', 'kaprodi', 'direktur', 'wadir', 'kabag'])) {
             return redirect()->to('/dashboard')->with('error', 'Akses ditolak.');
         }
 
@@ -32,9 +32,9 @@ class UserController extends BaseController
 
         $users = $this->userModel->getUsersWithDetails($role, $prodi_id, $filterNama, $filterProdi, $filterRole);
 
-        // Ambil daftar prodi khusus untuk pejabat/superadmin
+        // Ambil daftar prodi khusus untuk direktur/wadir/kabag/superadmin
         $prodiList = [];
-        if (in_array($role, ['superadmin', 'pejabat'])) {
+        if (in_array($role, ['superadmin', 'direktur', 'wadir', 'kabag'])) {
             $prodiModel = new \App\Models\ProdiModel();
             $prodiList = $prodiModel->getOrderedProdi();
         }
@@ -55,7 +55,7 @@ class UserController extends BaseController
     public function create()
     {
         $role = strtolower(session()->get('role'));
-        if (!in_array($role, ['superadmin', 'admin_prodi'])) {
+        if (!in_array($role, ['superadmin', 'admin_prodi', 'kaprodi'])) {
             return redirect()->to('/users')->with('error', 'Akses ditolak.');
         }
 
@@ -128,7 +128,7 @@ class UserController extends BaseController
     public function edit($id)
     {
         $role = strtolower(session()->get('role'));
-        if (!in_array($role, ['superadmin', 'admin_prodi'])) {
+        if (!in_array($role, ['superadmin', 'admin_prodi', 'kaprodi'])) {
             return redirect()->to('/users')->with('error', 'Akses ditolak.');
         }
 
@@ -137,15 +137,15 @@ class UserController extends BaseController
             return redirect()->to('/users')->with('error', 'Data tidak ditemukan.');
         }
 
-        // Keamanan Admin Prodi: Hanya bisa edit orang dari prodi yang sama
-        if ($role == 'admin_prodi' && $userEdit['prodi_id'] != session()->get('prodi_id')) {
+        // Keamanan Admin Prodi / Kaprodi: Hanya bisa edit orang dari prodi yang sama
+        if (in_array($role, ['admin_prodi', 'kaprodi']) && $userEdit['prodi_id'] != session()->get('prodi_id')) {
             return redirect()->to('/users')->with('error', 'Data tidak berada di wewenang Anda.');
         }
 
         $prodiModel = new \App\Models\ProdiModel();
         $prodiList = $prodiModel->getOrderedProdi();
         
-        if ($role == 'admin_prodi') {
+        if (in_array($role, ['admin_prodi', 'kaprodi'])) {
             $pembimbingList = $this->userModel->where('role', 'pembimbing')->where('prodi_id', session()->get('prodi_id'))->findAll();
         } else {
             $pembimbingList = $this->userModel->where('role', 'pembimbing')->findAll();
@@ -165,12 +165,12 @@ class UserController extends BaseController
     public function update($id)
     {
         $role = strtolower(session()->get('role'));
-        if (!in_array($role, ['superadmin', 'admin_prodi'])) {
+        if (!in_array($role, ['superadmin', 'admin_prodi', 'kaprodi'])) {
             return redirect()->to('/users');
         }
 
         $userEdit = $this->userModel->find($id);
-        if (!$userEdit || ($role == 'admin_prodi' && $userEdit['prodi_id'] != session()->get('prodi_id'))) {
+        if (!$userEdit || (in_array($role, ['admin_prodi', 'kaprodi']) && $userEdit['prodi_id'] != session()->get('prodi_id'))) {
             return redirect()->to('/users')->with('error', 'Data tidak valid.');
         }
 
@@ -205,16 +205,16 @@ class UserController extends BaseController
             $userData['jenjang']       = $this->request->getPost('jenjang');
             $userData['kelas']         = $this->request->getPost('kelas');
             
-            $userData['prodi_id'] = ($role == 'admin_prodi') ? session()->get('prodi_id') : $this->request->getPost('prodi_id');
+            $userData['prodi_id'] = (in_array($role, ['admin_prodi', 'kaprodi'])) ? session()->get('prodi_id') : $this->request->getPost('prodi_id');
         } 
-        elseif (in_array($targetRole, ['pembimbing', 'admin_prodi'])) {
-            $userData['prodi_id'] = ($role == 'admin_prodi') ? session()->get('prodi_id') : $this->request->getPost('prodi_id');
+        elseif (in_array($targetRole, ['pembimbing', 'admin_prodi', 'kaprodi'])) {
+            $userData['prodi_id'] = (in_array($role, ['admin_prodi', 'kaprodi'])) ? session()->get('prodi_id') : $this->request->getPost('prodi_id');
             // Bersihkan field lain jika beralih role
             $userData['jenjang'] = null;
             $userData['kelas'] = null;
         } 
         else {
-            // Pejabat / Superadmin
+            // Direktur / Wadir / Kabag / Superadmin
             $userData['prodi_id'] = null;
             $userData['jenjang'] = null;
             $userData['kelas'] = null;
@@ -228,7 +228,7 @@ class UserController extends BaseController
     public function delete($id)
     {
         $role = strtolower(session()->get('role'));
-        if (!in_array($role, ['superadmin', 'admin_prodi'])) {
+        if (!in_array($role, ['superadmin', 'admin_prodi', 'kaprodi'])) {
             return redirect()->to('/users')->with('error', 'Akses ditolak.');
         }
 

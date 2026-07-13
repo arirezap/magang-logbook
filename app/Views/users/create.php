@@ -35,9 +35,12 @@
                             <option value="">-- Pilih Role --</option>
                             <option value="taruna">Taruna</option>
                             <option value="pembimbing">Dosen Pembimbing</option>
-                            <option value="admin_prodi">Admin Prodi</option>
                             <?php if($userRole == 'superadmin'): ?>
-                                <option value="pejabat">Pejabat / Direktur</option>
+                                <option value="admin_prodi">Admin Prodi</option>
+                                <option value="kaprodi">Kaprodi</option>
+                                <option value="direktur">Direktur</option>
+                                <option value="wadir">Wakil Direktur</option>
+                                <option value="kabag">Kepala Bagian</option>
                                 <option value="superadmin">Superadmin</option>
                             <?php endif; ?>
                         </select>

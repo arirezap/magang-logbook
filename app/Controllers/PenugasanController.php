@@ -23,19 +23,19 @@ class PenugasanController extends BaseController
     {
         // Khusus admin prodi atau superadmin (pejabat)
         $role = session()->get('role');
-        if (!in_array($role, ['admin_prodi', 'pejabat', 'superadmin'])) {
+        if (!in_array($role, ['admin_prodi', 'kaprodi', 'direktur', 'wadir', 'kabag', 'superadmin'])) {
             return redirect()->to('/dashboard')->with('error', 'Akses ditolak.');
         }
 
         $builder = $this->userModel->builder();
-        $builder->select('penugasan_magang.id as penugasan_id, penugasan_magang.tahun_ajaran, penugasan_magang.periode, penugasan_magang.tempat_magang, penugasan_magang.status_aktif, penugasan_magang.tanggal_mulai, penugasan_magang.tanggal_selesai, users.nama as nama_taruna, users.nomor_induk, p.nama as nama_pembimbing, users.id as taruna_id')
+        $builder->select('penugasan_magang.id as penugasan_id, penugasan_magang.tahun_ajaran, penugasan_magang.periode, penugasan_magang.tempat_magang, penugasan_magang.status_aktif, penugasan_magang.tanggal_mulai, penugasan_magang.tanggal_selesai, penugasan_magang.pembimbing_id, users.nama as nama_taruna, users.nomor_induk, p.nama as nama_pembimbing, users.id as taruna_id')
                 ->join('penugasan_magang', 'penugasan_magang.taruna_id = users.id', 'left')
                 ->join('users p', 'p.id = penugasan_magang.pembimbing_id', 'left')
                 ->where('users.role', 'taruna')
                 ->orderBy('users.nama', 'ASC');
                 
         // Jika admin prodi, batasi hanya melihat taruna dari prodinya
-        if ($role === 'admin_prodi') {
+        if ($role === 'admin_prodi' || $role === 'kaprodi') {
             $builder->where('users.prodi_id', session()->get('prodi_id'));
         }
 
@@ -57,7 +57,7 @@ class PenugasanController extends BaseController
                     ->orLike('users.nomor_induk', $filterNama)
                     ->groupEnd();
         }
-        if (!empty($filterProdi) && in_array($role, ['pejabat', 'superadmin'])) {
+        if (!empty($filterProdi) && in_array($role, ['direktur', 'wadir', 'kabag', 'superadmin'])) {
             $builder->where('users.prodi_id', $filterProdi);
         }
 
@@ -68,7 +68,7 @@ class PenugasanController extends BaseController
 
         // Data untuk dropdown form
         $builderTaruna = $this->userModel->where('role', 'taruna')->orderBy('nama', 'ASC');
-        if ($role === 'admin_prodi') {
+        if ($role === 'admin_prodi' || $role === 'kaprodi') {
             $builderTaruna->where('prodi_id', session()->get('prodi_id'));
         }
         $tarunaList = $builderTaruna->findAll();
@@ -109,7 +109,7 @@ class PenugasanController extends BaseController
     public function store()
     {
         $role = session()->get('role');
-        if (!in_array($role, ['admin_prodi', 'pejabat', 'superadmin'])) {
+        if (!in_array($role, ['admin_prodi', 'kaprodi', 'direktur', 'wadir', 'kabag', 'superadmin'])) {
             return redirect()->to('/dashboard')->with('error', 'Akses ditolak.');
         }
 
@@ -125,8 +125,23 @@ class PenugasanController extends BaseController
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
+        $taruna_id = $this->request->getPost('taruna_id');
+        $tahun_ajaran = $this->request->getPost('tahun_ajaran');
+        $periode = $this->request->getPost('periode');
+
+        // Cek duplikasi penugasan
+        $isDuplicate = $this->penugasanModel->where([
+            'taruna_id' => $taruna_id,
+            'tahun_ajaran' => $tahun_ajaran,
+            'periode' => $periode
+        ])->first();
+
+        if ($isDuplicate) {
+            return redirect()->back()->withInput()->with('error', 'Gagal: Taruna tersebut sudah memiliki penugasan di periode yang sama.');
+        }
+
         // Nonaktifkan penugasan sebelumnya untuk taruna ini
-        $this->penugasanModel->where('taruna_id', $this->request->getPost('taruna_id'))
+        $this->penugasanModel->where('taruna_id', $taruna_id)
                              ->set(['status_aktif' => false])
                              ->update();
 
@@ -143,6 +158,30 @@ class PenugasanController extends BaseController
         ]);
 
         return redirect()->back()->with('success', 'Penugasan magang berhasil ditambahkan.');
+    }
+
+    public function update($id)
+    {
+        $role = session()->get('role');
+        if (!in_array($role, ['admin_prodi', 'kaprodi', 'direktur', 'wadir', 'kabag', 'superadmin'])) {
+            return redirect()->to('/dashboard')->with('error', 'Akses ditolak.');
+        }
+
+        $rules = [
+            'pembimbing_id' => 'required|is_natural_no_zero',
+            'tempat_magang' => 'required'
+        ];
+
+        if (!$this->validate($rules)) {
+            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+        }
+
+        $this->penugasanModel->update($id, [
+            'pembimbing_id' => $this->request->getPost('pembimbing_id'),
+            'tempat_magang' => $this->request->getPost('tempat_magang')
+        ]);
+
+        return redirect()->back()->with('success', 'Data penugasan magang berhasil diperbarui.');
     }
 
     public function downloadTemplate()
@@ -181,7 +220,7 @@ class PenugasanController extends BaseController
     public function importExcel()
     {
         $role = session()->get('role');
-        if (!in_array($role, ['admin_prodi', 'pejabat', 'superadmin'])) {
+        if (!in_array($role, ['admin_prodi', 'kaprodi', 'direktur', 'wadir', 'kabag', 'superadmin'])) {
             return redirect()->to('/dashboard')->with('error', 'Akses ditolak.');
         }
 
@@ -210,6 +249,7 @@ class PenugasanController extends BaseController
             $db->transStart();
             
             $countSuccess = 0;
+            $skippedUsers = [];
 
             // Load data master untuk mapping
             $prodiModel = new \App\Models\ProdiModel();
@@ -267,36 +307,25 @@ class PenugasanController extends BaseController
                     }
                 }
 
-                // Cek akun taruna
+                // Cek akun taruna (sesuai aturan baru: skip jika sudah ada)
                 $existingUser = $this->userModel->where('nomor_induk', $notar)->first();
-                $taruna_id = null;
 
                 if ($existingUser) {
-                    $taruna_id = $existingUser['id'];
-                    // Update kelas & prodi jika berubah
-                    $this->userModel->update($taruna_id, [
-                        'nama' => $nama,
-                        'kelas' => $kelas,
-                        'prodi_id' => $prodi_id
-                    ]);
-                } else {
-                    // Buat akun baru
-                    $this->userModel->insert([
-                        'nomor_induk' => $notar,
-                        'nama' => $nama,
-                        'password' => password_hash($notar, PASSWORD_DEFAULT),
-                        'role' => 'taruna',
-                        'prodi_id' => $prodi_id,
-                        'kelas' => $kelas
-                    ]);
-                    $taruna_id = $this->userModel->getInsertID();
+                    $skippedUsers[] = $notar;
+                    continue; // Skip baris ini sepenuhnya
                 }
 
-                // Nonaktifkan penugasan sebelumnya
-                $this->penugasanModel->where('taruna_id', $taruna_id)
-                                     ->set(['status_aktif' => false])
-                                     ->update();
-                
+                // Buat akun baru
+                $this->userModel->insert([
+                    'nomor_induk' => $notar,
+                    'nama' => $nama,
+                    'password' => password_hash($notar, PASSWORD_DEFAULT),
+                    'role' => 'taruna',
+                    'prodi_id' => $prodi_id,
+                    'kelas' => $kelas
+                ]);
+                $taruna_id = $this->userModel->getInsertID();
+
                 // Buat penugasan baru
                 $this->penugasanModel->save([
                     'taruna_id'       => $taruna_id,
@@ -316,10 +345,92 @@ class PenugasanController extends BaseController
                 return redirect()->back()->with('error', 'Terjadi kesalahan saat memproses data. Import dibatalkan.');
             }
 
-            return redirect()->back()->with('success', "$countSuccess taruna berhasil di-import dan ditugaskan.");
+            $msg = "$countSuccess data taruna baru berhasil di-import dan ditugaskan.";
+            if (count($skippedUsers) > 0) {
+                $msg .= " " . count($skippedUsers) . " data dilewati karena Notar sudah terdaftar (" . implode(", ", $skippedUsers) . ").";
+                return redirect()->back()->with('success', $msg);
+            }
+
+            return redirect()->back()->with('success', $msg);
             
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Error membaca file: ' . $e->getMessage());
         }
+    }
+
+    public function batchMigrate()
+    {
+        $role = session()->get('role');
+        if (!in_array($role, ['admin_prodi', 'kaprodi', 'direktur', 'wadir', 'kabag', 'superadmin'])) {
+            return redirect()->to('/dashboard')->with('error', 'Akses ditolak.');
+        }
+
+        $taruna_ids = $this->request->getPost('taruna_ids');
+        if (empty($taruna_ids) || !is_array($taruna_ids)) {
+            return redirect()->back()->with('error', 'Pilih setidaknya satu taruna untuk dimigrasi.');
+        }
+
+        $db = \Config\Database::connect();
+        $db->transStart();
+
+        $countSuccess = 0;
+        $skipped = [];
+
+        foreach ($taruna_ids as $t_id) {
+            // Cari penugasan aktif saat ini
+            $currentPenugasan = $this->penugasanModel->where('taruna_id', $t_id)
+                                                     ->where('status_aktif', true)
+                                                     ->first();
+
+            // Jika tidak ada penugasan atau bukan periode 1, skip
+            if (!$currentPenugasan || $currentPenugasan['periode'] != 1) {
+                $skipped[] = "Taruna ID $t_id tidak berada di Periode 1.";
+                continue;
+            }
+
+            $tahun_ajaran = $currentPenugasan['tahun_ajaran'];
+            
+            // Cek apakah sudah ada Periode 2 di tahun ajaran yang sama
+            $isDuplicate = $this->penugasanModel->where([
+                'taruna_id' => $t_id,
+                'tahun_ajaran' => $tahun_ajaran,
+                'periode' => 2
+            ])->first();
+
+            if ($isDuplicate) {
+                $skipped[] = "Taruna ID $t_id sudah memiliki Magang Periode 2.";
+                continue;
+            }
+
+            // Nonaktifkan yang lama
+            $this->penugasanModel->update($currentPenugasan['id'], ['status_aktif' => false]);
+
+            // Buat yang baru untuk periode 2
+            $this->penugasanModel->save([
+                'taruna_id'       => $t_id,
+                'pembimbing_id'   => $currentPenugasan['pembimbing_id'],
+                'tahun_ajaran'    => $tahun_ajaran,
+                'periode'         => 2,
+                'tempat_magang'   => $currentPenugasan['tempat_magang'],
+                'status_aktif'    => true
+            ]);
+
+            $countSuccess++;
+        }
+
+        $db->transComplete();
+
+        if ($db->transStatus() === false) {
+            return redirect()->back()->with('error', 'Terjadi kesalahan sistem saat memproses migrasi batch.');
+        }
+
+        $msg = "$countSuccess taruna berhasil dimigrasi ke Magang Periode 2.";
+        if (count($skipped) > 0) {
+            $msg .= " (" . count($skipped) . " taruna dilewati karena bukan di Periode 1 atau sudah ada di Periode 2).";
+            // if we want it green despite some skips, keep it in success. Or use info.
+            return redirect()->back()->with('success', $msg);
+        }
+
+        return redirect()->back()->with('success', $msg);
     }
 }

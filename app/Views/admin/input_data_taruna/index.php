@@ -14,6 +14,9 @@
         </div>
     </div>
     <div class="d-flex flex-wrap gap-2">
+        <button type="submit" form="formBatchMigrate" class="btn btn-warning rounded-pill px-3 py-2 fw-semibold shadow-sm hover-lift d-none" id="btnBatchMigrate" onclick="return confirm('Yakin ingin memigrasi taruna terpilih ke Magang Periode 2? (Tempat magang dan Dosen pembimbing akan disalin otomatis)')">
+            <i class="bi bi-arrow-right-circle-fill me-1"></i> Migrasi ke Periode 2
+        </button>
         <button type="button" class="btn btn-outline-success rounded-pill px-3 py-2 fw-semibold shadow-sm hover-lift" data-bs-toggle="modal" data-bs-target="#modalImportExcel">
             <i class="bi bi-file-earmark-excel-fill me-1"></i> Import Excel
         </button>
@@ -69,7 +72,7 @@
                         <option value="2" <?= $filterPeriode == '2' ? 'selected' : '' ?>>Magang 2</option>
                     </select>
                 </div>
-                <?php if(in_array($userRole, ['pejabat', 'superadmin'])): ?>
+                <?php if(in_array($userRole, ['direktur', 'wadir', 'kabag', 'superadmin'])): ?>
                 <div class="col-12 col-md-3">
                     <label class="form-label fw-semibold text-dark mb-1" style="font-size: 0.8rem; letter-spacing: 0.5px;">PROGRAM STUDI</label>
                     <select name="prodi_id" class="form-select border-secondary-subtle shadow-none">
@@ -100,21 +103,31 @@
                 <p class="text-muted mb-0">Silakan klik tombol "Tambah Penugasan" untuk mulai menugaskan taruna.</p>
             </div>
         <?php else: ?>
+            <form id="formBatchMigrate" method="POST" action="<?= base_url('/input-data-taruna/batch-migrate') ?>">
+            <?= csrf_field() ?>
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0">
                     <thead style="background: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%); border-bottom: 2px solid #e8eeff;">
                         <tr>
-                            <th class="px-4 py-3 fw-bold text-muted" style="font-size: 0.8rem; letter-spacing: 0.5px;">TARUNA</th>
+                            <th class="px-4 py-3" style="width: 50px;">
+                                <input class="form-check-input" type="checkbox" id="checkAll">
+                            </th>
+                            <th class="py-3 fw-bold text-muted" style="font-size: 0.8rem; letter-spacing: 0.5px;">TARUNA</th>
                             <th class="py-3 fw-bold text-muted" style="font-size: 0.8rem; letter-spacing: 0.5px;">PERIODE & TAHUN AJARAN</th>
                             <th class="py-3 fw-bold text-muted" style="font-size: 0.8rem; letter-spacing: 0.5px;">TEMPAT MAGANG</th>
                             <th class="py-3 fw-bold text-muted" style="font-size: 0.8rem; letter-spacing: 0.5px;">PEMBIMBING</th>
-                            <th class="px-4 py-3 fw-bold text-muted text-center" style="font-size: 0.8rem; letter-spacing: 0.5px;">STATUS</th>
+                            <th class="px-4 py-3 fw-bold text-muted text-center" style="font-size: 0.8rem; letter-spacing: 0.5px;">STATUS & AKSI</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php foreach($penugasan as $p): ?>
                             <tr class="border-bottom border-light hover-shadow-sm transition-all <?= empty($p['penugasan_id']) ? '' : ($p['status_aktif'] ? '' : 'bg-light') ?>">
                                 <td class="px-4 py-3">
+                                    <?php if(!empty($p['penugasan_id']) && $p['status_aktif']): ?>
+                                        <input class="form-check-input checkItem" type="checkbox" name="taruna_ids[]" value="<?= esc($p['taruna_id']) ?>">
+                                    <?php endif; ?>
+                                </td>
+                                <td class="py-3">
                                     <div class="fw-bold text-dark" style="font-size:0.95rem;"><?= esc($p['nama_taruna']) ?></div>
                                     <div class="text-muted" style="font-size:0.8rem;"><i class="bi bi-person-vcard me-1"></i><?= esc($p['nomor_induk']) ?></div>
                                 </td>
@@ -156,7 +169,12 @@
                                     <?php if(empty($p['penugasan_id'])): ?>
                                         <span class="badge bg-warning bg-opacity-10 text-warning border border-warning-subtle rounded-pill px-3 py-1"><i class="bi bi-exclamation-circle me-1"></i> Kosong</span>
                                     <?php elseif($p['status_aktif']): ?>
-                                        <span class="badge bg-success bg-opacity-10 text-success border border-success-subtle rounded-pill px-3 py-1"><i class="bi bi-check-circle-fill me-1"></i> Aktif</span>
+                                        <div class="d-flex align-items-center justify-content-center gap-2">
+                                            <span class="badge bg-success bg-opacity-10 text-success border border-success-subtle rounded-pill px-3 py-1"><i class="bi bi-check-circle-fill me-1"></i> Aktif</span>
+                                            <button type="button" class="btn btn-sm btn-outline-primary rounded-circle" data-bs-toggle="modal" data-bs-target="#modalEditPenugasan<?= $p['penugasan_id'] ?>" title="Edit Dosen Pembimbing & Tempat">
+                                                <i class="bi bi-pencil-fill"></i>
+                                            </button>
+                                        </div>
                                     <?php else: ?>
                                         <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary-subtle rounded-pill px-3 py-1"><i class="bi bi-clock-history me-1"></i> Selesai/Riwayat</span>
                                     <?php endif; ?>
@@ -166,6 +184,7 @@
                     </tbody>
                 </table>
             </div>
+            </form>
         <?php endif; ?>
     </div>
 </div>
@@ -334,5 +353,94 @@
     color: #842029;
 }
 </style>
+
+<!-- Loop Modal Edit Penugasan -->
+<?php if(!empty($penugasan)): ?>
+    <?php foreach($penugasan as $p): ?>
+        <?php if(!empty($p['penugasan_id'])): ?>
+            <div class="modal fade" id="modalEditPenugasan<?= $p['penugasan_id'] ?>" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+                        <div class="modal-header border-0 bg-light px-4 py-3">
+                            <h5 class="modal-title fw-bold text-dark">Edit Penugasan Magang</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <form action="<?= base_url('/input-data-taruna/update/' . $p['penugasan_id']) ?>" method="POST">
+                            <?= csrf_field() ?>
+                            <div class="modal-body px-4 py-4">
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold text-dark mb-1" style="font-size: 0.85rem;">Taruna</label>
+                                    <input type="text" class="form-control bg-light text-muted" value="<?= esc($p['nama_taruna']) ?> (<?= esc($p['nomor_induk']) ?>)" readonly>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold text-dark mb-1" style="font-size: 0.85rem;">Periode & Tahun Ajaran</label>
+                                    <input type="text" class="form-control bg-light text-muted" value="Magang <?= esc($p['periode']) ?> - <?= esc($p['tahun_ajaran']) ?>" readonly>
+                                </div>
+                                
+                                <hr class="my-4 text-muted opacity-25">
+                                
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold text-dark mb-1" style="font-size: 0.85rem;">Tempat Magang <span class="text-danger">*</span></label>
+                                    <input type="text" name="tempat_magang" class="form-control shadow-none border-secondary-subtle" value="<?= esc($p['tempat_magang']) ?>" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold text-dark mb-1" style="font-size: 0.85rem;">Dosen Pembimbing <span class="text-danger">*</span></label>
+                                    <select name="pembimbing_id" class="form-select shadow-none border-secondary-subtle" required>
+                                        <option value="">-- Pilih Pembimbing --</option>
+                                        <?php foreach($pembimbingList as $dsn): ?>
+                                            <option value="<?= $dsn['id'] ?>" <?= (($p['pembimbing_id'] ?? '') == $dsn['id']) ? 'selected' : '' ?>>
+                                                <?= esc($dsn['nama']) ?> <?= $dsn['nomor_induk'] ? '('.esc($dsn['nomor_induk']).')' : '' ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="modal-footer border-0 bg-light px-4 py-3">
+                                <button type="button" class="btn btn-light fw-semibold text-dark px-4 rounded-pill" data-bs-dismiss="modal">Batal</button>
+                                <button type="submit" class="btn btn-primary-custom px-4 rounded-pill fw-semibold shadow-sm">
+                                    <i class="bi bi-save me-1"></i> Simpan Perubahan
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        <?php endif; ?>
+    <?php endforeach; ?>
+<?php endif; ?>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const checkAll = document.getElementById('checkAll');
+    const checkItems = document.querySelectorAll('.checkItem');
+    const btnBatchMigrate = document.getElementById('btnBatchMigrate');
+
+    function toggleBatchButton() {
+        const anyChecked = Array.from(checkItems).some(checkbox => checkbox.checked);
+        if (anyChecked) {
+            btnBatchMigrate.classList.remove('d-none');
+        } else {
+            btnBatchMigrate.classList.add('d-none');
+        }
+    }
+
+    if (checkAll) {
+        checkAll.addEventListener('change', function() {
+            checkItems.forEach(checkbox => {
+                checkbox.checked = this.checked;
+            });
+            toggleBatchButton();
+        });
+    }
+
+    checkItems.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const allChecked = Array.from(checkItems).every(cb => cb.checked);
+            checkAll.checked = allChecked;
+            toggleBatchButton();
+        });
+    });
+});
+</script>
 
 <?= $this->endSection() ?>

@@ -57,7 +57,7 @@ class LogbookModel extends Model
     }
 
 
-    // Fungsi custom untuk Laporan Global (Admin Prodi, Pejabat & Superadmin)
+    // Fungsi custom untuk Laporan Global (Admin Prodi, Kaprodi, Direktur, Wadir, Kabag & Superadmin)
     public function getAllLogbooksGlobal($role, $prodi_id, $filterTanggal = null, $filterNama = null, $filterProdi = null, $filterKelas = null, $filterStatus = null)
     {
         $builder = $this->select('logbooks.*, users.nama as nama_taruna, users.nomor_induk as notar_taruna, prodi.nama_prodi, users.kelas, pm.tempat_magang as tempat_magang_logbook, pm.tahun_ajaran, pm.periode, pp.nama as nama_pembimbing')
@@ -67,8 +67,8 @@ class LogbookModel extends Model
                     ->join('users pp', 'pp.id = pm.pembimbing_id', 'left'); // new
                     
                     
-        // Jika admin prodi, filter berdasarkan prodi_id miliknya
-        if ($role === 'admin_prodi' && !empty($prodi_id)) {
+        // Jika admin prodi / kaprodi, filter berdasarkan prodi_id miliknya
+        if (in_array($role, ['admin_prodi', 'kaprodi']) && !empty($prodi_id)) {
             $builder->where('users.prodi_id', $prodi_id);
         } else if (!empty($filterProdi)) {
             $builder->where('users.prodi_id', $filterProdi);

@@ -48,12 +48,12 @@
         <div class="card-body p-4">
             <h6 class="card-title fw-bold text-muted mb-3"><i class="bi bi-funnel"></i> Filter Pencarian</h6>
             <form method="get" action="<?= base_url('laporan') ?>" class="row g-3">
-                <div class="col-12 <?= in_array($userRole, ['superadmin', 'pejabat']) ? 'col-md-2' : 'col-md-3' ?>">
+                <div class="col-12 <?= in_array($userRole, ['superadmin', 'direktur', 'wadir', 'kabag']) ? 'col-md-2' : 'col-md-3' ?>">
                     <label for="tanggal" class="form-label-custom">Tanggal Pelaporan</label>
                     <input type="date" class="form-control form-control-custom" id="tanggal" name="tanggal" value="<?= esc($filterTanggal ?? '') ?>">
                 </div>
                 
-                <?php if (in_array($userRole, ['superadmin', 'pejabat'])): ?>
+                <?php if (in_array($userRole, ['superadmin', 'direktur', 'wadir', 'kabag'])): ?>
                 <div class="col-12 col-md-3">
                     <label for="prodi" class="form-label-custom">Program Studi</label>
                     <select class="form-select form-select-custom" id="prodi" name="prodi">
@@ -65,7 +65,7 @@
                 </div>
                 <?php endif; ?>
 
-                <div class="col-12 <?= in_array($userRole, ['superadmin', 'pejabat']) ? 'col-md-2' : 'col-md-3' ?>">
+                <div class="col-12 <?= in_array($userRole, ['superadmin', 'direktur', 'wadir', 'kabag']) ? 'col-md-2' : 'col-md-3' ?>">
                     <label for="kelas" class="form-label-custom">Kelas</label>
                     <select class="form-select form-select-custom" id="kelas" name="kelas">
                         <option value="">-- Semua Kelas --</option>
@@ -80,7 +80,7 @@
                     <input type="text" class="form-control form-control-custom" id="nama" name="nama" placeholder="Pencarian..." value="<?= esc($filterNama ?? '') ?>">
                 </div>
 
-                <div class="col-12 <?= in_array($userRole, ['superadmin', 'pejabat']) ? 'col-md-2' : 'col-md-3' ?>">
+                <div class="col-12 <?= in_array($userRole, ['superadmin', 'direktur', 'wadir', 'kabag']) ? 'col-md-2' : 'col-md-3' ?>">
                     <label for="status" class="form-label-custom">Status Validasi</label>
                     <select class="form-select form-select-custom" id="status" name="status">
                         <option value="">-- Semua Status --</option>

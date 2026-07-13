@@ -36,14 +36,13 @@ class UserModel extends Model
                         ->join('prodi', 'prodi.id = users.prodi_id', 'left');
 
         if ($user_role === 'superadmin') {
-            // Superadmin melihat semua role kecuali dirinya sendiri
-            $builder->where('users.role !=', 'superadmin');
-        } elseif ($user_role === 'admin_prodi') {
-            // Admin Prodi hanya mengelola Dosen dan Taruna di prodinya sendiri
+            // Superadmin melihat semua role termasuk superadmin lainnya
+        } elseif (in_array($user_role, ['admin_prodi', 'kaprodi'])) {
+            // Admin Prodi dan Kaprodi hanya mengelola Dosen dan Taruna di prodinya sendiri
             $builder->whereIn('users.role', ['taruna', 'pembimbing'])
                     ->where('users.prodi_id', $prodi_id);
         } else {
-            // Pejabat melihat Dosen dan Taruna dari seluruh prodi
+            // Direktur / Wadir / Kabag melihat Dosen dan Taruna dari seluruh prodi
             $builder->whereIn('users.role', ['taruna', 'pembimbing']);
         }
 

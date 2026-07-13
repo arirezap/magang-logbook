@@ -40,6 +40,8 @@ $routes->group('', ['filter' => 'auth'], static function ($routes) {
     // Rute Input Data Taruna
     $routes->get('/input-data-taruna', 'PenugasanController::index');
     $routes->post('/input-data-taruna/store', 'PenugasanController::store');
+    $routes->post('/input-data-taruna/update/(:num)', 'PenugasanController::update/$1');
+    $routes->post('/input-data-taruna/batch-migrate', 'PenugasanController::batchMigrate');
     $routes->post('/input-data-taruna/import', 'PenugasanController::importExcel');
     $routes->get('/input-data-taruna/template', 'PenugasanController::downloadTemplate');
 
@@ -51,4 +53,5 @@ $routes->group('', ['filter' => 'auth'], static function ($routes) {
 
     // Rute Profil Pengguna
     $routes->get('/profile', 'DashboardController::profile');
+    $routes->post('/profile/update-password', 'DashboardController::updatePassword');
 });

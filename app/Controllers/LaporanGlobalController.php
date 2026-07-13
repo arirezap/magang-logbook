@@ -17,8 +17,8 @@ class LaporanGlobalController extends BaseController
     {
         $role = strtolower(session()->get('role'));
         
-        // Hanya Superadmin, Admin Prodi dan Pejabat yang bisa mengakses
-        if (!in_array($role, ['superadmin', 'admin_prodi', 'pejabat'])) {
+        // Hanya Superadmin, Admin Prodi, Kaprodi, Direktur, Wadir, dan Kabag yang bisa mengakses
+        if (!in_array($role, ['superadmin', 'admin_prodi', 'kaprodi', 'direktur', 'wadir', 'kabag'])) {
             return redirect()->to('/dashboard')->with('error', 'Akses ditolak.');
         }
 
@@ -44,9 +44,9 @@ class LaporanGlobalController extends BaseController
             else $revisi_ditolak++;
         }
         
-        // Ambil daftar prodi khusus untuk pejabat/superadmin
+        // Ambil daftar prodi khusus untuk direktur/wadir/kabag/superadmin
         $prodiList = [];
-        if (in_array($role, ['superadmin', 'pejabat'])) {
+        if (in_array($role, ['superadmin', 'direktur', 'wadir', 'kabag'])) {
             $prodiModel = new \App\Models\ProdiModel();
             $prodiList = $prodiModel->getOrderedProdi();
         }

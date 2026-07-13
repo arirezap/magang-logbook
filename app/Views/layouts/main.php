@@ -21,7 +21,7 @@
 <body class="bg-light">
     
     <!-- Topbar Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-custom sticky-top">
+    <nav class="navbar navbar-expand-lg navbar-custom sticky-top" id="mainNavbar" style="transition: transform 0.3s ease-in-out;">
         <div class="container-fluid px-4 px-md-5">
             <a class="navbar-brand d-flex align-items-center gap-2 me-4" href="<?= base_url('/dashboard') ?>">
                 <img src="<?= base_url('images/logo-pktj.png') ?>" alt="Logo PKTJ" style="height: 38px; width: auto;">
@@ -34,15 +34,26 @@
             </button>
  
             <div class="collapse navbar-collapse" id="topNavbar">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0 gap-1 align-items-lg-center">
                     <?php $current_route = current_url(true)->getSegment(1) ?? 'dashboard'; ?>
+                    
+                    <!-- 1. Dashboard -->
                     <li class="nav-item">
                         <a class="nav-link <?= ($current_route == 'dashboard' || $current_route == '') ? 'active' : '' ?>" href="<?= base_url('/dashboard') ?>">
                             Dashboard
                         </a>
                     </li>
                     
-                    <!-- Menu Khusus Taruna -->
+                    <!-- 2. Laporan -->
+                    <?php if(in_array(strtolower(session()->get('role')), ['admin_prodi', 'kaprodi', 'direktur', 'wadir', 'kabag', 'superadmin'])): ?>
+                    <li class="nav-item">
+                        <a class="nav-link <?= ($current_route == 'laporan') ? 'active' : '' ?>" href="<?= base_url('/laporan') ?>">
+                            Laporan
+                        </a>
+                    </li>
+                    <?php endif; ?>
+
+                    <!-- 3. Lainnya -->
                     <?php if(strtolower(session()->get('role')) == 'taruna'): ?>
                     <li class="nav-item">
                         <a class="nav-link <?= ($current_route == 'logbook') ? 'active' : '' ?>" href="<?= base_url('/logbook') ?>">
@@ -51,7 +62,6 @@
                     </li>
                     <?php endif; ?>
  
-                    <!-- Menu Khusus Pembimbing -->
                     <?php if(strtolower(session()->get('role')) == 'pembimbing'): ?>
                     <li class="nav-item">
                         <a class="nav-link <?= ($current_route == 'validasi') ? 'active' : '' ?>" href="<?= base_url('/validasi') ?>">
@@ -65,8 +75,7 @@
                     </li>
                     <?php endif; ?>
  
-                    <!-- Menu Khusus Admin/Pejabat/Superadmin -->
-                    <?php if(in_array(strtolower(session()->get('role')), ['admin_prodi', 'pejabat', 'superadmin'])): ?>
+                    <?php if(in_array(strtolower(session()->get('role')), ['admin_prodi', 'kaprodi', 'direktur', 'wadir', 'kabag', 'superadmin'])): ?>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle <?= ($current_route == 'input-data-taruna' || $current_route == 'input-data-dosen') ? 'active' : '' ?>" href="#" id="masterDataDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             Master Data
@@ -76,53 +85,24 @@
                             <li><a class="dropdown-item <?= ($current_route == 'input-data-dosen') ? 'active' : '' ?>" href="<?= base_url('/input-data-dosen') ?>">Input Data Dosen</a></li>
                         </ul>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link <?= ($current_route == 'laporan') ? 'active' : '' ?>" href="<?= base_url('/laporan') ?>">
-                            Laporan
-                        </a>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle <?= ($current_route == 'users') ? 'active' : '' ?>" href="#" id="pengaturanDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Pengaturan
-                        </a>
-                        <ul class="dropdown-menu border-0 shadow-sm rounded-3 mt-2" aria-labelledby="pengaturanDropdown">
-                            <li><a class="dropdown-item <?= ($current_route == 'users') ? 'active' : '' ?>" href="<?= base_url('/users') ?>">Data Pengguna</a></li>
-                        </ul>
-                    </li>
                     <?php endif; ?>
                 </ul>
  
-                <!-- Clickable Profile Avatar Dropdown -->
-                <div class="dropdown mt-3 mt-lg-0">
-                    <a href="#" class="d-flex align-items-center user-profile text-decoration-none border-0" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="background: none; outline: none; box-shadow: none;">
-                        <div class="text-end d-none d-lg-block me-2">
-                            <div class="fw-bold text-white mb-0" style="font-size: 0.85rem; line-height: 1.2;"><?= esc(session()->get('nama')) ?></div>
-                            <div class="text-white-50" style="font-size: 0.72rem; text-transform: uppercase; font-weight: 600;"><?= esc(session()->get('role')) ?></div>
-                        </div>
-                        <div class="user-avatar shadow-sm">
-                            <?= strtoupper(substr(session()->get('nama'), 0, 1)) ?>
-                        </div>
+                <!-- Right Side Action Icons -->
+                <div class="d-flex align-items-center gap-4 mt-3 mt-lg-0 border-start border-light border-opacity-25 ps-4 ms-2">
+                    <?php if(in_array(strtolower(session()->get('role')), ['admin_prodi', 'kaprodi', 'direktur', 'wadir', 'kabag', 'superadmin'])): ?>
+                    <a href="<?= base_url('/users') ?>" class="text-white text-decoration-none fs-5 opacity-75 <?= ($current_route == 'users') ? 'opacity-100' : '' ?>" title="Pengaturan" style="transition: all 0.2s; outline: none;" onmouseover="this.classList.replace('opacity-75', 'opacity-100')" onmouseout="this.classList.replace('opacity-100', 'opacity-75')">
+                        <i class="bi bi-gear-fill"></i>
                     </a>
-                    
-                    <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3 mt-2" aria-labelledby="profileDropdown">
-                        <li>
-                            <div class="px-3 py-2 border-bottom d-lg-none">
-                                <div class="fw-bold text-dark" style="font-size: 0.9rem;"><?= esc(session()->get('nama')) ?></div>
-                                <div class="text-muted" style="font-size: 0.75rem; text-transform: uppercase;"><?= esc(session()->get('role')) ?></div>
-                            </div>
-                        </li>
-                        <li>
-                            <a class="dropdown-item py-2" href="<?= base_url('/profile') ?>">
-                                <i class="bi bi-person me-2"></i> Profil Saya
-                            </a>
-                        </li>
-                        <li><hr class="dropdown-divider my-1"></li>
-                        <li>
-                            <a class="dropdown-item py-2 text-danger" href="<?= base_url('/logout') ?>">
-                                <i class="bi bi-box-arrow-right me-2"></i> Keluar
-                            </a>
-                        </li>
-                    </ul>
+                    <?php endif; ?>
+
+                    <a href="<?= base_url('/profile') ?>" class="text-white text-decoration-none fs-5 opacity-75 <?= ($current_route == 'profile') ? 'opacity-100' : '' ?>" title="Profil Saya" style="transition: all 0.2s; outline: none;" onmouseover="this.classList.replace('opacity-75', 'opacity-100')" onmouseout="this.classList.replace('opacity-100', 'opacity-75')">
+                        <i class="bi bi-person-fill"></i>
+                    </a>
+
+                    <a href="<?= base_url('/logout') ?>" class="text-white text-decoration-none fs-5 opacity-75" title="Keluar" style="transition: all 0.2s; outline: none;" onmouseover="this.classList.replace('opacity-75', 'opacity-100')" onmouseout="this.classList.replace('opacity-100', 'opacity-75')">
+                        <i class="bi bi-box-arrow-right"></i>
+                    </a>
                 </div>
             </div>
         </div>
@@ -133,7 +113,64 @@
         <?= $this->renderSection('content') ?>
     </div>
  
+    <!-- Back To Top Button -->
+    <button type="button" class="btn btn-primary-custom rounded-circle shadow" id="btnBackToTop" style="position: fixed; bottom: 30px; right: 30px; width: 50px; height: 50px; display: none; z-index: 1000; transition: opacity 0.3s ease, transform 0.3s ease;">
+        <i class="bi bi-arrow-up fs-5"></i>
+    </button>
+
     <!-- Bootstrap 5 JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- UI/UX Pro Max Scripts: Smart Scroll Navbar & Back to Top -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Smart Scroll Navbar
+            let lastScrollTop = 0;
+            const navbar = document.getElementById('mainNavbar');
+            
+            window.addEventListener('scroll', function() {
+                let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                
+                // Jika scroll ke bawah lebih dari 50px
+                if (scrollTop > lastScrollTop && scrollTop > 50) {
+                    navbar.style.transform = 'translateY(-100%)';
+                } 
+                // Jika scroll ke atas
+                else {
+                    navbar.style.transform = 'translateY(0)';
+                }
+                lastScrollTop = scrollTop;
+            });
+
+            // Back to Top Button
+            const btnBackToTop = document.getElementById('btnBackToTop');
+            
+            window.addEventListener('scroll', function() {
+                if (window.pageYOffset > 300) {
+                    btnBackToTop.style.display = 'block';
+                    // Animasi muncul sedikit
+                    setTimeout(() => {
+                        btnBackToTop.style.opacity = '1';
+                        btnBackToTop.style.transform = 'translateY(0)';
+                    }, 10);
+                } else {
+                    btnBackToTop.style.opacity = '0';
+                    btnBackToTop.style.transform = 'translateY(10px)';
+                    setTimeout(() => {
+                        if (window.pageYOffset <= 300) {
+                            btnBackToTop.style.display = 'none';
+                        }
+                    }, 300);
+                }
+            });
+
+            btnBackToTop.addEventListener('click', function() {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
 </body>
 </html>

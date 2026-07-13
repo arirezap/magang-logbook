@@ -42,12 +42,12 @@
         <div class="card-body p-4">
             <h6 class="card-title fw-bold text-muted mb-3"><i class="bi bi-funnel"></i> Filter Pencarian</h6>
             <form method="get" action="<?= base_url('/users') ?>" class="row g-3">
-                <div class="col-12 <?= in_array($userRole, ['superadmin', 'pejabat']) ? 'col-md-4' : 'col-md-6' ?>">
+                <div class="col-12 <?= in_array($userRole, ['superadmin', 'direktur', 'wadir', 'kabag']) ? 'col-md-4' : 'col-md-6' ?>">
                     <label for="nama" class="form-label text-muted small fw-bold text-uppercase" style="font-size: 0.8rem; letter-spacing: 0.5px;">Pencarian</label>
                     <input type="text" class="form-control form-control-custom" id="nama" name="nama" placeholder="Pencarian..." value="<?= esc($filterNama ?? '') ?>">
                 </div>
 
-                <?php if (in_array($userRole, ['superadmin', 'pejabat'])): ?>
+                <?php if (in_array($userRole, ['superadmin', 'direktur', 'wadir', 'kabag'])): ?>
                 <div class="col-12 col-md-4">
                     <label for="prodi" class="form-label text-muted small fw-bold text-uppercase" style="font-size: 0.8rem; letter-spacing: 0.5px;">Program Studi</label>
                     <select class="form-select form-select-custom" id="prodi" name="prodi">
@@ -59,13 +59,18 @@
                 </div>
                 <?php endif; ?>
 
-                <div class="col-12 <?= in_array($userRole, ['superadmin', 'pejabat']) ? 'col-md-4' : 'col-md-6' ?>">
+                <div class="col-12 <?= in_array($userRole, ['superadmin', 'direktur', 'wadir', 'kabag']) ? 'col-md-4' : 'col-md-6' ?>">
                     <label for="role" class="form-label text-muted small fw-bold text-uppercase" style="font-size: 0.8rem; letter-spacing: 0.5px;">Status / Peran</label>
                     <select class="form-select form-select-custom" id="role" name="role">
                         <option value="">-- Semua Peran --</option>
                         <option value="taruna" <?= ($filterRole == 'taruna') ? 'selected' : '' ?>>Taruna</option>
                         <option value="pembimbing" <?= ($filterRole == 'pembimbing') ? 'selected' : '' ?>>Dosen Pembimbing</option>
                         <option value="admin_prodi" <?= ($filterRole == 'admin_prodi') ? 'selected' : '' ?>>Admin Prodi</option>
+                        <option value="kaprodi" <?= ($filterRole == 'kaprodi') ? 'selected' : '' ?>>Kaprodi</option>
+                        <option value="direktur" <?= ($filterRole == 'direktur') ? 'selected' : '' ?>>Direktur</option>
+                        <option value="wadir" <?= ($filterRole == 'wadir') ? 'selected' : '' ?>>Wakil Direktur</option>
+                        <option value="kabag" <?= ($filterRole == 'kabag') ? 'selected' : '' ?>>Kepala Bagian</option>
+                        <option value="superadmin" <?= ($filterRole == 'superadmin') ? 'selected' : '' ?>>Superadmin</option>
                     </select>
                 </div>
 
@@ -128,7 +133,7 @@
                                         <span class="badge-pembimbing text-nowrap">Dosen Pembimbing</span>
                                     <?php else: ?>
                                         <span class="badge bg-secondary-subtle text-secondary-emphasis rounded-3 px-3 py-2 text-nowrap" style="font-size: 0.82rem; font-weight: 600;">
-                                            <?= esc($user['role']) ?>
+                                            <?= esc(ucwords(str_replace('_', ' ', $user['role']))) ?>
                                         </span>
                                     <?php endif; ?>
                                 </td>

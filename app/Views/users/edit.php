@@ -35,8 +35,11 @@
                             <option value="taruna" <?= ($userEdit['role'] == 'taruna') ? 'selected' : '' ?>>Taruna</option>
                             <option value="pembimbing" <?= ($userEdit['role'] == 'pembimbing') ? 'selected' : '' ?>>Dosen Pembimbing</option>
                             <option value="admin_prodi" <?= ($userEdit['role'] == 'admin_prodi') ? 'selected' : '' ?>>Admin Prodi</option>
+                            <option value="kaprodi" <?= ($userEdit['role'] == 'kaprodi') ? 'selected' : '' ?>>Kaprodi</option>
                             <?php if($userRole == 'superadmin'): ?>
-                                <option value="pejabat" <?= ($userEdit['role'] == 'pejabat') ? 'selected' : '' ?>>Pejabat / Direktur</option>
+                                <option value="direktur" <?= ($userEdit['role'] == 'direktur') ? 'selected' : '' ?>>Direktur</option>
+                                <option value="wadir" <?= ($userEdit['role'] == 'wadir') ? 'selected' : '' ?>>Wakil Direktur</option>
+                                <option value="kabag" <?= ($userEdit['role'] == 'kabag') ? 'selected' : '' ?>>Kepala Bagian</option>
                                 <option value="superadmin" <?= ($userEdit['role'] == 'superadmin') ? 'selected' : '' ?>>Superadmin</option>
                             <?php endif; ?>
                         </select>

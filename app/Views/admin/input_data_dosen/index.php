@@ -51,7 +51,7 @@
                         <input type="text" name="nama" class="form-control border-secondary-subtle border-start-0 shadow-none" placeholder="Pencarian..." value="<?= esc($filterNama ?? '') ?>">
                     </div>
                 </div>
-                <?php if(in_array($userRole, ['pejabat', 'superadmin'])): ?>
+                <?php if(in_array($userRole, ['direktur', 'wadir', 'kabag', 'superadmin'])): ?>
                 <div class="col-12 col-md-4">
                     <label class="form-label fw-semibold text-dark mb-1" style="font-size: 0.8rem; letter-spacing: 0.5px;">PROGRAM STUDI</label>
                     <select name="prodi_id" class="form-select border-secondary-subtle shadow-none">

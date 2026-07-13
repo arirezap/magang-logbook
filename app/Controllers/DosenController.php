@@ -22,7 +22,7 @@ class DosenController extends BaseController
     public function index()
     {
         $role = session()->get('role');
-        if (!in_array($role, ['admin_prodi', 'pejabat', 'superadmin'])) {
+        if (!in_array($role, ['admin_prodi', 'kaprodi', 'direktur', 'wadir', 'kabag', 'superadmin'])) {
             return redirect()->to('/dashboard')->with('error', 'Akses ditolak.');
         }
 
@@ -32,15 +32,15 @@ class DosenController extends BaseController
                 ->where('users.role', 'pembimbing')
                 ->orderBy('users.nama', 'ASC');
                 
-        if ($role === 'admin_prodi') {
+        if ($role === 'admin_prodi' || $role === 'kaprodi') {
             $builder->where('users.prodi_id', session()->get('prodi_id'));
         }
 
-        // Filter Data by Prodi & Nama (hanya untuk superadmin/pejabat)
+        // Filter Data by Prodi & Nama (hanya untuk superadmin/direktur/wadir/kabag)
         $filterProdi = $this->request->getGet('prodi_id');
         $filterNama = $this->request->getGet('nama');
         
-        if (!empty($filterProdi) && in_array($role, ['pejabat', 'superadmin'])) {
+        if (!empty($filterProdi) && in_array($role, ['direktur', 'wadir', 'kabag', 'superadmin'])) {
             $builder->where('users.prodi_id', $filterProdi);
         }
         
@@ -69,7 +69,7 @@ class DosenController extends BaseController
     public function store()
     {
         $role = session()->get('role');
-        if (!in_array($role, ['admin_prodi', 'pejabat', 'superadmin'])) {
+        if (!in_array($role, ['admin_prodi', 'kaprodi', 'direktur', 'wadir', 'kabag', 'superadmin'])) {
             return redirect()->to('/dashboard')->with('error', 'Akses ditolak.');
         }
 
@@ -126,7 +126,7 @@ class DosenController extends BaseController
     public function importExcel()
     {
         $role = session()->get('role');
-        if (!in_array($role, ['admin_prodi', 'pejabat', 'superadmin'])) {
+        if (!in_array($role, ['admin_prodi', 'kaprodi', 'direktur', 'wadir', 'kabag', 'superadmin'])) {
             return redirect()->to('/dashboard')->with('error', 'Akses ditolak.');
         }
 

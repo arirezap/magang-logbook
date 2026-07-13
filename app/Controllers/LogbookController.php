@@ -22,13 +22,49 @@ class LogbookController extends BaseController
         }
 
         $user_id = session()->get('id');
-        $logbooks = $this->logbookModel->where('user_id', $user_id)
-                                       ->orderBy('tanggal', 'DESC')
-                                       ->findAll();
+        $tanggal_filter = $this->request->getGet('tanggal_filter');
+        $status = $this->request->getGet('status');
+
+        $builder = $this->logbookModel->where('user_id', $user_id);
+
+        $start_date = '';
+        $end_date = '';
+        if (!empty($tanggal_filter)) {
+            // Flatpickr range separator depends on locale, can be ' to ' or ' - '
+            $separator = strpos($tanggal_filter, ' - ') !== false ? ' - ' : ' to ';
+            $dates = explode($separator, $tanggal_filter);
+            $start_date = trim($dates[0]);
+            $end_date = isset($dates[1]) ? trim($dates[1]) : $start_date;
+            
+            $builder->where('tanggal >=', $start_date);
+            $builder->where('tanggal <=', $end_date);
+        }
+
+        if (!empty($status)) {
+            $builder->where('status', $status);
+        }
+
+        $logbooks = $builder->orderBy('tanggal', 'DESC')->findAll();
+
+        // Data untuk penanda warna pada kalender (mengambil semua riwayat logbook taruna)
+        $allLogbooks = $this->logbookModel->where('user_id', $user_id)->findAll();
+        $calendarData = [];
+        foreach ($allLogbooks as $log) {
+            $calendarData[$log['tanggal']] = $log['status'];
+        }
+
+        // Ambil tanggal mulai magang dari penugasan aktif
+        $penugasanModel = new PenugasanMagangModel();
+        $penugasan = $penugasanModel->getActivePenugasan($user_id);
+        $tanggal_mulai = $penugasan ? $penugasan['tanggal_mulai'] : null;
 
         $data = [
-            'title'    => 'Riwayat Logbook Harian',
-            'logbooks' => $logbooks
+            'title'          => 'Riwayat Logbook Harian',
+            'logbooks'       => $logbooks,
+            'tanggal_filter' => $tanggal_filter,
+            'status'         => $status,
+            'calendarData'   => json_encode($calendarData),
+            'tanggal_mulai'  => $tanggal_mulai
         ];
 
         return view('logbook/index', $data);
