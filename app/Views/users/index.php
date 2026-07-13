@@ -152,11 +152,17 @@
                                         <a href="<?= base_url('/users/edit/' . $user['id']) ?>" class="btn btn-sm btn-action-edit d-flex align-items-center gap-1 py-1.5 px-3 border-0">
                                             <i class="bi bi-pencil-square"></i> Edit
                                         </a>
-                                        <a href="<?= base_url('/users/delete/' . $user['id']) ?>" 
-                                           class="btn btn-sm btn-action-delete d-flex align-items-center gap-1 py-1.5 px-3 border-0" 
-                                           onclick="return confirm('Apakah Anda yakin ingin menghapus pengguna ini? Semua data logbook terkait akan ikut terhapus secara permanen!');">
-                                            <i class="bi bi-trash-fill"></i> Hapus
-                                        </a>
+                                        <?php if (strtolower($user['role']) !== 'superadmin'): ?>
+                                            <a href="<?= base_url('/users/delete/' . $user['id']) ?>" 
+                                               class="btn btn-sm btn-action-delete d-flex align-items-center gap-1 py-1.5 px-3 border-0" 
+                                               onclick="return confirm('Apakah Anda yakin ingin menghapus pengguna ini? Semua data logbook terkait akan ikut terhapus secara permanen!');">
+                                                <i class="bi bi-trash-fill"></i> Hapus
+                                            </a>
+                                        <?php else: ?>
+                                            <button disabled class="btn btn-sm btn-secondary d-flex align-items-center gap-1 py-1.5 px-3 border-0 opacity-50" title="Superadmin tidak dapat dihapus">
+                                                <i class="bi bi-shield-lock-fill"></i> Hapus
+                                            </button>
+                                        <?php endif; ?>
                                     </div>
                                 </td>
                                 <?php endif; ?>

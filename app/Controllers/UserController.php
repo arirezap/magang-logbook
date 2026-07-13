@@ -245,6 +245,11 @@ class UserController extends BaseController
             return redirect()->to('/users')->with('error', 'Tidak berada di bawah wewenang Anda.');
         }
 
+        // Proteksi: Superadmin tidak boleh dihapus oleh siapapun
+        if (strtolower($user['role']) === 'superadmin') {
+            return redirect()->to('/users')->with('error', 'Keamanan: Akun Superadmin dilarang dihapus!');
+        }
+
         $this->userModel->delete($id);
         return redirect()->to('/users')->with('success', 'Pengguna berhasil dihapus.');
     }
