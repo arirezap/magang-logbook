@@ -3,7 +3,8 @@
 <?= $this->section('content') ?>
     <!-- Header Section -->
     <div class="mb-4">
-        <a href="<?= base_url('/logbook') ?>" class="text-decoration-none text-muted small d-inline-flex align-items-center gap-1 mb-2">
+        <?php $qs = $_SERVER['QUERY_STRING'] ?? ''; ?>
+        <a href="<?= base_url('/logbook') . ($qs ? '?'.$qs : '') ?>" class="text-decoration-none text-muted small d-inline-flex align-items-center gap-1 mb-2">
             <i class="bi bi-arrow-left"></i> Kembali ke Riwayat
         </a>
         <h3 class="fw-bold text-dark m-0" style="letter-spacing: -0.5px;">Edit Logbook Harian</h3>
@@ -42,7 +43,7 @@
         <div class="col-12 col-lg-8">
             <div class="card border-0 shadow-sm rounded-4">
                 <div class="card-body p-4 p-md-5">
-                    <form action="<?= base_url('/logbook/update/' . $logbook['id']) ?>" method="POST">
+                    <form action="<?= base_url('/logbook/update/' . $logbook['id']) . ($qs ? '?'.$qs : '') ?>" method="POST">
                         <?= csrf_field() ?>
                         
                         <!-- Tanggal Kegiatan -->

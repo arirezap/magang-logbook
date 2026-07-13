@@ -113,6 +113,90 @@
         <?= $this->renderSection('content') ?>
     </div>
  
+    <!-- Footer -->
+    <footer class="text-white pt-5 pb-4 mt-auto" style="background-color: #0b2545; border-top: 4px solid #ffca28;">
+        <div class="container-fluid px-4 px-md-5">
+            <div class="row gy-4">
+                <!-- Branding & Address -->
+                <div class="col-12 col-lg-5 pe-lg-5">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <img src="<?= base_url('images/logo-pktj.png') ?>" alt="Logo PKTJ" style="height: 50px; width: auto; background: white; padding: 3px; border-radius: 8px;">
+                        <div>
+                            <h5 class="fw-bold mb-0">Politeknik Keselamatan Transportasi Jalan</h5>
+                            <small class="text-white-50">Sistem Informasi Logbook Magang</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contact & Campuses -->
+                <div class="col-12 col-md-6 col-lg-4">
+                    <h6 class="text-uppercase fw-bold mb-3" style="letter-spacing: 1px; color: #ffca28;">Hubungi Kami</h6>
+                    <ul class="list-unstyled text-white-50 mb-0" style="font-size: 0.9rem; line-height: 1.6;">
+                        <li class="mb-3 d-flex">
+                            <i class="bi bi-geo-alt-fill text-primary me-2 mt-1"></i>
+                            <div>
+                                <strong class="text-white">Kampus 1:</strong><br>
+                                Jl. Perintis Kemerdekaan No. 17, Slerok, Tegal Timur, Kota Tegal, Jawa Tengah 52125
+                            </div>
+                        </li>
+                        <li class="mb-3 d-flex">
+                            <i class="bi bi-building text-primary me-2 mt-1"></i>
+                            <div>
+                                <strong class="text-white">Kampus 2:</strong><br>
+                                Jl. Abdul Syukur No. 17, Margadana, Kota Tegal, Jawa Tengah 52143
+                            </div>
+                        </li>
+                        <li class="d-flex align-items-center">
+                            <i class="bi bi-envelope-fill text-primary me-2"></i>
+                            <a href="mailto:pktj@pktj.ac.id" class="text-white-50 text-decoration-none hover-white">pktj@pktj.ac.id</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Quick Links -->
+                <div class="col-12 col-md-6 col-lg-3">
+                    <h6 class="text-uppercase fw-bold mb-3" style="letter-spacing: 1px; color: #ffca28;">Tautan Cepat</h6>
+                    <ul class="list-unstyled text-white-50 mb-0" style="font-size: 0.9rem;">
+                        <li class="mb-2"><a href="<?= base_url('/dashboard') ?>" class="text-white-50 text-decoration-none hover-white"><i class="bi bi-chevron-right small me-1"></i> Dashboard Utama</a></li>
+                        <li class="mb-2"><a href="#" class="text-white-50 text-decoration-none hover-white"><i class="bi bi-chevron-right small me-1"></i> Panduan Magang</a></li>
+                        <li class="mb-2"><a href="#" class="text-white-50 text-decoration-none hover-white"><i class="bi bi-chevron-right small me-1"></i> Bantuan (FAQ)</a></li>
+                        <li class="mb-2"><a href="https://pktj.ac.id" target="_blank" class="text-white-50 text-decoration-none hover-white"><i class="bi bi-chevron-right small me-1"></i> Website Utama PKTJ</a></li>
+                        <li>
+                            <div class="d-flex gap-3 mt-3">
+                                <a href="https://instagram.com/pktj_tegal" target="_blank" class="text-white-50 hover-white fs-5"><i class="bi bi-instagram"></i></a>
+                                <a href="https://youtube.com/@politeknikkeselamatantrans8474?si=TQvg2wEtnDIoXNJR" target="_blank" class="text-white-50 hover-white fs-5"><i class="bi bi-youtube"></i></a>
+                                <a href="https://facebook.com/pktjtegal" target="_blank" class="text-white-50 hover-white fs-5"><i class="bi bi-facebook"></i></a>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <hr class="border-secondary mt-4 mb-3">
+            
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-center" style="font-size: 0.85rem;">
+                <div class="text-white-50 mb-2 mb-md-0 w-100 text-center">
+                    &copy; <?= date('Y') ?> Politeknik Keselamatan Transportasi Jalan. Hak Cipta Dilindungi.
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        #content {
+            flex: 1; /* Make sure the content takes up remaining vertical space to push footer to bottom */
+        }
+        .hover-white:hover {
+            color: #ffffff !important;
+            transition: color 0.2s ease-in-out;
+        }
+    </style>
+ 
     <!-- Back To Top Button -->
     <button type="button" class="btn btn-primary-custom rounded-circle shadow" id="btnBackToTop" style="position: fixed; bottom: 30px; right: 30px; width: 50px; height: 50px; display: none; z-index: 1000; transition: opacity 0.3s ease, transform 0.3s ease;">
         <i class="bi bi-arrow-up fs-5"></i>

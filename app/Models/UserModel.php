@@ -30,7 +30,7 @@ class UserModel extends Model
     protected $deletedField  = 'deleted_at';
 
     // Mengambil data pengguna beserta nama prodi dan nama pembimbingnya
-    public function getUsersWithDetails($user_role = null, $prodi_id = null, $filterNama = null, $filterProdi = null, $filterRole = null)
+    public function getUsersWithDetails($user_role = null, $prodi_id = null, $filterNama = null, $filterProdi = null, $filterRole = null, $perPage = 0)
     {
         $builder = $this->select('users.*, prodi.nama_prodi')
                         ->join('prodi', 'prodi.id = users.prodi_id', 'left');
@@ -60,6 +60,14 @@ class UserModel extends Model
             $builder->where('users.role', $filterRole);
         }
 
-        return $builder->orderBy('users.role', 'ASC')->orderBy('users.nama', 'ASC')->findAll();
+        if ($perPage > 0) {
+            return $builder->orderBy('users.role', 'ASC')
+                           ->orderBy('users.nama', 'ASC')
+                           ->paginate($perPage, 'users');
+        }
+
+        return $builder->orderBy('users.role', 'ASC')
+                       ->orderBy('users.nama', 'ASC')
+                       ->findAll();
     }
 }

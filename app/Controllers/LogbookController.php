@@ -44,7 +44,9 @@ class LogbookController extends BaseController
             $builder->where('status', $status);
         }
 
-        $logbooks = $builder->orderBy('tanggal', 'DESC')->findAll();
+        $perPage = $this->request->getGet('per_page') ?? 10;
+        $logbooks = $builder->orderBy('tanggal', 'DESC')->paginate($perPage, 'logbooks');
+        $pager = $this->logbookModel->pager;
 
         // Data untuk penanda warna pada kalender (mengambil semua riwayat logbook taruna)
         $allLogbooks = $this->logbookModel->where('user_id', $user_id)->findAll();
@@ -64,7 +66,9 @@ class LogbookController extends BaseController
             'tanggal_filter' => $tanggal_filter,
             'status'         => $status,
             'calendarData'   => json_encode($calendarData),
-            'tanggal_mulai'  => $tanggal_mulai
+            'tanggal_mulai'  => $tanggal_mulai,
+            'perPage'        => $perPage,
+            'pager'          => $pager
         ];
 
         return view('logbook/index', $data);
@@ -126,17 +130,26 @@ class LogbookController extends BaseController
         $penugasanModel = new PenugasanMagangModel();
         $penugasan = $penugasanModel->getActivePenugasan(session()->get('id'));
 
-        // Simpan data
-        $this->logbookModel->save([
-            'user_id'     => session()->get('id'),
-            'penugasan_id'=> $penugasan ? $penugasan['id'] : null,
-            'tanggal'     => $this->request->getPost('tanggal'),
-            'kegiatan'    => $this->request->getPost('kegiatan'),
-            'dokumentasi' => $this->request->getPost('dokumentasi'),
-            'status'      => 'pending' // Default status menunggu validasi
-        ]);
+        try {
+            // Simpan data
+            $this->logbookModel->save([
+                'user_id'     => session()->get('id'),
+                'penugasan_id'=> $penugasan ? $penugasan['id'] : null,
+                'tanggal'     => $this->request->getPost('tanggal'),
+                'kegiatan'    => $this->request->getPost('kegiatan'),
+                'dokumentasi' => $this->request->getPost('dokumentasi'),
+                'status'      => 'pending' // Default status menunggu validasi
+            ]);
 
-        return redirect()->to('/logbook')->with('success', 'Logbook harian berhasil ditambahkan! Menunggu validasi pembimbing.');
+            return redirect()->to('/logbook')->with('success', 'Logbook harian berhasil ditambahkan! Menunggu validasi pembimbing.');
+        } catch (\CodeIgniter\Database\Exceptions\DatabaseException $e) {
+            // Jika terjadi Duplicate Entry karena race condition
+            if (strpos($e->getMessage(), 'Duplicate entry') !== false) {
+                return redirect()->back()->withInput()->with('validation', ['tanggal' => 'Anda sudah mengisi laporan logbook pada tanggal tersebut (Terdeteksi pengiriman ganda).']);
+            }
+            // Error database lainnya
+            return redirect()->back()->withInput()->with('error', 'Terjadi kesalahan pada sistem saat menyimpan data.');
+        }
     }
 
     public function edit($id)
@@ -147,8 +160,8 @@ class LogbookController extends BaseController
 
         $logbook = $this->logbookModel->find($id);
 
-        // Pastikan data ada, milik user yang login, dan status mengizinkan edit
-        if (!$logbook || $logbook['user_id'] != session()->get('id') || !in_array($logbook['status'], ['pending', 'revisi', 'ditolak'])) {
+        // Pastikan data ada, milik user yang login, dan status mengizinkan edit (hanya revisi/ditolak)
+        if (!$logbook || $logbook['user_id'] != session()->get('id') || !in_array($logbook['status'], ['revisi', 'ditolak'])) {
             return redirect()->to('/logbook')->with('error', 'Data tidak ditemukan atau sudah tidak dapat diedit (Terkunci).');
         }
 
@@ -168,7 +181,7 @@ class LogbookController extends BaseController
 
         $logbook = $this->logbookModel->find($id);
 
-        if (!$logbook || $logbook['user_id'] != session()->get('id') || !in_array($logbook['status'], ['pending', 'revisi', 'ditolak'])) {
+        if (!$logbook || $logbook['user_id'] != session()->get('id') || !in_array($logbook['status'], ['revisi', 'ditolak'])) {
             return redirect()->to('/logbook')->with('error', 'Data tidak ditemukan atau sudah tidak dapat diedit (Terkunci).');
         }
 
@@ -216,14 +229,24 @@ class LogbookController extends BaseController
             }
         }
 
-        $this->logbookModel->update($id, [
-            'tanggal'     => $this->request->getPost('tanggal'),
-            'kegiatan'    => $this->request->getPost('kegiatan'),
-            'dokumentasi' => $this->request->getPost('dokumentasi'),
-            'status'      => 'pending' // Reset status ke pending
-        ]);
+        try {
+            $this->logbookModel->update($id, [
+                'tanggal'     => $this->request->getPost('tanggal'),
+                'kegiatan'    => $this->request->getPost('kegiatan'),
+                'dokumentasi' => $this->request->getPost('dokumentasi'),
+                'status'      => 'pending' // Reset status ke pending
+            ]);
 
-        return redirect()->to('/logbook')->with('success', 'Logbook harian berhasil diperbarui dan dikirim ulang untuk divalidasi.');
+            $qs = $this->request->getUri()->getQuery();
+            $redirectUrl = $qs ? '/logbook?' . $qs : '/logbook';
+            
+            return redirect()->to($redirectUrl)->with('success', 'Logbook harian berhasil diperbarui dan dikirim ulang untuk divalidasi.');
+        } catch (\CodeIgniter\Database\Exceptions\DatabaseException $e) {
+            if (strpos($e->getMessage(), 'Duplicate entry') !== false) {
+                return redirect()->back()->withInput()->with('validation', ['tanggal' => 'Anda sudah memiliki laporan logbook lain pada tanggal tersebut (Terdeteksi pengiriman ganda).']);
+            }
+            return redirect()->back()->withInput()->with('error', 'Terjadi kesalahan pada sistem saat memperbarui data.');
+        }
     }
 
     public function delete($id)
@@ -234,8 +257,8 @@ class LogbookController extends BaseController
 
         $logbook = $this->logbookModel->find($id);
 
-        // Taruna tidak bisa menghapus logbook yang sudah disetujui
-        if (!$logbook || $logbook['user_id'] != session()->get('id') || $logbook['status'] == 'disetujui') {
+        // Taruna hanya bisa menghapus jika status revisi/ditolak
+        if (!$logbook || $logbook['user_id'] != session()->get('id') || !in_array($logbook['status'], ['revisi', 'ditolak'])) {
             return redirect()->to('/logbook')->with('error', 'Data tidak ditemukan atau sudah tidak dapat dihapus (Terkunci).');
         }
 

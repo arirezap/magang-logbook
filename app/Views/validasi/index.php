@@ -2,6 +2,9 @@
 
 <?= $this->section('content') ?>
 
+<!-- Flatpickr CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
 <!-- Header -->
 <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
     <div>
@@ -42,9 +45,12 @@
     <div class="card-body p-3 p-md-4">
         <form method="GET" action="<?= base_url('/validasi') ?>" id="filterForm">
             <div class="row g-3 align-items-end">
-                <div class="col-12 col-md-3">
-                    <label class="form-label fw-semibold text-dark mb-2" style="font-size: 0.8rem; letter-spacing: 0.5px;">TANGGAL LOGBOOK</label>
-                    <input type="date" class="form-control form-control-custom" name="tanggal" value="<?= esc($filterTanggal ?? date('Y-m-d')) ?>">
+                <div class="col-12 col-md-2">
+                    <label class="form-label fw-semibold text-dark mb-2" style="font-size: 0.8rem; letter-spacing: 0.5px;">TANGGAL</label>
+                    <div class="input-group shadow-sm rounded-3">
+                        <span class="input-group-text bg-white border-secondary-subtle px-2"><i class="bi bi-calendar-range text-muted"></i></span>
+                        <input type="text" class="form-control border-secondary-subtle border-start-0 bg-white ps-1" id="dateRangePicker" name="tanggal" placeholder="Pilih Tanggal..." value="<?= esc($filterTanggal ?? date('Y-m-d')) ?>" readonly>
+                    </div>
                 </div>
                 <div class="col-12 col-md-3">
                     <label class="form-label fw-semibold text-dark mb-2" style="font-size: 0.8rem; letter-spacing: 0.5px;">PENCARIAN</label>
@@ -53,8 +59,8 @@
                         <input type="text" class="form-control border-secondary-subtle border-start-0 shadow-none" id="nama" name="nama" placeholder="Pencarian..." value="<?= esc($filterNama ?? '') ?>">
                     </div>
                 </div>
-                <div class="col-12 col-md-3">
-                    <label class="form-label fw-semibold text-dark mb-2" style="font-size: 0.8rem; letter-spacing: 0.5px;">STATUS VALIDASI</label>
+                <div class="col-12 col-md-4">
+                    <label class="form-label fw-semibold text-dark mb-2" style="font-size: 0.8rem; letter-spacing: 0.5px;">STATUS</label>
                     <select name="status" class="form-select form-control-custom">
                         <option value="">Semua Status</option>
                         <option value="pending"   <?= ($filterStatus ?? '') === 'pending'   ? 'selected' : '' ?>>⏳ Pending</option>
@@ -63,14 +69,15 @@
                         <option value="ditolak"   <?= ($filterStatus ?? '') === 'ditolak'   ? 'selected' : '' ?>>❌ Ditolak</option>
                     </select>
                 </div>
+
                 <div class="col-12 col-md-3">
                     <label class="form-label d-none d-md-block mb-2">&nbsp;</label>
                     <div class="d-flex gap-2">
-                        <button type="submit" class="btn btn-primary-custom flex-fill fw-semibold shadow-sm rounded-3 d-flex align-items-center justify-content-center" style="height: 38px;">
+                        <button type="submit" class="btn btn-primary btn-sm flex-fill fw-medium shadow-sm rounded-3 d-flex align-items-center justify-content-center py-2">
                             <i class="bi bi-funnel-fill me-2"></i> Terapkan
                         </button>
-                        <a href="<?= base_url('/validasi') ?>" class="btn btn-outline-secondary rounded-3 d-flex align-items-center justify-content-center" title="Reset Filter" style="height: 38px; width: 46px;">
-                            <i class="bi bi-arrow-counterclockwise fs-6"></i>
+                        <a href="<?= base_url('/validasi') ?>" class="btn btn-light border-secondary-subtle btn-sm rounded-3 d-flex align-items-center justify-content-center px-3 py-2" title="Reset Filter">
+                            <i class="bi bi-arrow-counterclockwise text-secondary"></i>
                         </a>
                     </div>
                 </div>
@@ -288,13 +295,17 @@
         <div class="px-4 py-3 border-top d-flex align-items-center justify-content-between flex-wrap gap-2"
              style="background: #f8f9ff; border-radius: 0 0 1rem 1rem;">
             <span class="text-muted fw-medium" style="font-size:0.85rem;">
-                Total <span class="badge bg-primary rounded-pill px-2"><?= count($logbooks) ?></span> laporan ditemukan.
+                Menampilkan data halaman ini dari total keseluruhan.
             </span>
             <?php if(!empty($filterNama) || !empty($filterStatus)): ?>
             <a href="<?= base_url('/validasi') ?>" class="btn btn-sm btn-outline-danger rounded-pill px-3 fw-semibold shadow-sm" style="font-size:0.8rem;">
                 <i class="bi bi-x-circle-fill me-1"></i>Hapus Pencarian
             </a>
             <?php endif; ?>
+        </div>
+        
+        <div class="w-100 mt-4 mb-2 d-flex justify-content-center">
+            <?= $pager->links('logbooks', 'custom_pagination') ?>
         </div>
 
         <?php endif; ?>
@@ -420,6 +431,19 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 });
+</script>
+
+<!-- Flatpickr JS -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://npmcdn.com/flatpickr/dist/l10n/id.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        flatpickr("#dateRangePicker", {
+            mode: "range",
+            dateFormat: "Y-m-d",
+            locale: "id"
+        });
+    });
 </script>
 
 <?= $this->endSection() ?>

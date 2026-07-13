@@ -115,6 +115,11 @@
                 </table>
             </div>
         <?php endif; ?>
+        
+        <!-- Pagination Links -->
+        <div class="mt-4 mb-3 d-flex justify-content-center">
+            <?= $pager->links('dosen', 'custom_pagination') ?>
+        </div>
     </div>
 </div>
 

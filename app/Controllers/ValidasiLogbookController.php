@@ -26,8 +26,10 @@ class ValidasiLogbookController extends BaseController
         $filterTanggal = $this->request->getGet('tanggal') ?? date('Y-m-d');
         $filterNama   = $this->request->getGet('nama');
         $filterStatus = $this->request->getGet('status');
+        $perPage      = $this->request->getGet('per_page') ?? 10;
 
-        $logbooks = $this->logbookModel->getLogbooksForPembimbing($pembimbing_id, $filterTanggal, $filterNama, $filterStatus);
+        $logbooks = $this->logbookModel->getLogbooksForPembimbing($pembimbing_id, $filterTanggal, $filterNama, $filterStatus, $perPage);
+        $pager    = $this->logbookModel->pager;
 
         $data = [
             'title'        => 'Validasi Logbook Taruna',
@@ -35,6 +37,8 @@ class ValidasiLogbookController extends BaseController
             'filterTanggal'=> $filterTanggal,
             'filterNama'   => $filterNama,
             'filterStatus' => $filterStatus,
+            'perPage'      => $perPage,
+            'pager'        => $pager,
         ];
 
         return view('validasi/index', $data);

@@ -112,20 +112,21 @@
 
     <!-- Filter Card -->
     <div class="filter-card">
-        <form action="" method="GET" class="row g-3 align-items-end">
-            <div class="col-12 col-md-5">
+        <form action="" method="GET" class="row g-3 align-items-end" id="filterFormLogbook">
+            <div class="col-12 col-md-4">
                 <label class="form-label fw-bold text-secondary small text-uppercase" style="letter-spacing: 0.5px;">Pilih Rentang Tanggal</label>
                 <div class="input-group">
                     <span class="input-group-text bg-light border-end-0"><i class="bi bi-calendar3"></i></span>
                     <input type="text" id="tanggal_filter" name="tanggal_filter" class="form-control clean-input border-start-0 ps-0 bg-white" placeholder="Pilih Tanggal..." value="<?= esc($tanggal_filter ?? '') ?>">
                 </div>
             </div>
-            <div class="col-12 col-md-4">
+            <div class="col-12 col-md-3">
                 <label class="form-label fw-bold text-secondary small text-uppercase" style="letter-spacing: 0.5px;">Status Validasi</label>
                 <select name="status" class="form-select clean-input bg-white">
                     <option value="">Semua Status</option>
-                    <option value="menunggu" <?= ($status ?? '') == 'menunggu' ? 'selected' : '' ?>>Menunggu</option>
+                    <option value="pending" <?= ($status ?? '') == 'pending' ? 'selected' : '' ?>>Pending</option>
                     <option value="disetujui" <?= ($status ?? '') == 'disetujui' ? 'selected' : '' ?>>Disetujui</option>
+                    <option value="revisi" <?= ($status ?? '') == 'revisi' ? 'selected' : '' ?>>Perlu Revisi</option>
                     <option value="ditolak" <?= ($status ?? '') == 'ditolak' ? 'selected' : '' ?>>Ditolak</option>
                 </select>
             </div>
@@ -182,14 +183,17 @@
                                     <?= esc(ucfirst($log['status'])) ?>
                                 </span>
                                 
-                                <div class="d-flex gap-2 mt-2">
-                                    <a href="<?= base_url('/logbook/edit/'.$log['id']) ?>" class="btn btn-sm btn-light border text-primary fw-semibold rounded-2 px-3">
-                                        <i class="bi bi-pencil-square"></i> Edit
-                                    </a>
-                                    <a href="<?= base_url('/logbook/delete/'.$log['id']) ?>" class="btn btn-sm btn-light border text-danger fw-semibold rounded-2 px-3" onclick="return confirm('Apakah Anda yakin ingin menghapus logbook ini?')">
-                                        <i class="bi bi-trash"></i> Hapus
-                                    </a>
-                                </div>
+                                <?php if(in_array($log['status'], ['revisi', 'ditolak'])): ?>
+                                    <div class="d-flex gap-2 mt-2">
+                                        <?php $qs = $_SERVER['QUERY_STRING'] ?? ''; ?>
+                                        <a href="<?= base_url('/logbook/edit/'.$log['id']) . ($qs ? '?'.$qs : '') ?>" class="btn btn-sm btn-light border text-primary fw-semibold rounded-2 px-3">
+                                            <i class="bi bi-pencil-square"></i> Edit
+                                        </a>
+                                        <a href="<?= base_url('/logbook/delete/'.$log['id']) ?>" class="btn btn-sm btn-light border text-danger fw-semibold rounded-2 px-3" onclick="return confirm('Apakah Anda yakin ingin menghapus logbook ini?')">
+                                            <i class="bi bi-trash"></i> Hapus
+                                        </a>
+                                    </div>
+                                <?php endif; ?>
                             </div>
                         </div>
                         <?php if(!empty($log['catatan_pembimbing'])): ?>
@@ -201,6 +205,11 @@
                     </div>
                 </div>
             <?php endforeach; ?>
+        </div>
+        
+        <!-- Pagination Links -->
+        <div class="mt-4 mb-2 d-flex justify-content-center">
+            <?= $pager->links('logbooks', 'custom_pagination') ?>
         </div>
     <?php endif; ?>
 

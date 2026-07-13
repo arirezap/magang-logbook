@@ -22,9 +22,9 @@
     <div class="login-split-container w-100">
         <!-- Brand / Visual Side (Left) -->
         <div class="login-brand-side col-lg-6 d-none d-lg-flex">
-            <div class="brand-side-logo">
-                <i class="bi bi-journal-bookmark-fill"></i>
-                <span>PKTJ LOGBOOK</span>
+            <div class="brand-side-logo d-flex align-items-center gap-2">
+                <img src="<?= base_url('images/logo-pktj.png') ?>" alt="Logo PKTJ" style="height: 45px; width: auto; object-fit: contain;">
+                <span class="fs-4 fw-bold">PKTJ LOGBOOK</span>
             </div>
             
             <div class="brand-side-content">
@@ -42,8 +42,8 @@
         <div class="login-form-side col-12 col-lg-6">
             <div class="login-form-wrapper">
                 <!-- Mobile Logo (shown only on mobile/tablet) -->
-                <div class="d-flex d-lg-none align-items-center gap-2 mb-4 justify-content-center text-primary">
-                    <i class="bi bi-journal-bookmark-fill fs-2 text-warning"></i>
+                <div class="d-flex d-lg-none align-items-center gap-2 mb-4 justify-content-center">
+                    <img src="<?= base_url('images/logo-pktj.png') ?>" alt="Logo PKTJ" style="height: 40px; width: auto; object-fit: contain;">
                     <span class="fs-4 fw-bold text-dark">PKTJ LOGBOOK</span>
                 </div>
 
@@ -77,7 +77,10 @@
 
                     <!-- Password Field -->
                     <div class="input-group-custom">
-                        <label for="password">Password</label>
+                        <div class="d-flex justify-content-between align-items-end mb-2 w-100">
+                            <label for="password" class="mb-0 pb-0">Password</label>
+                            <a href="#" id="forgotPasswordBtn" class="text-primary text-decoration-none" style="font-size: 0.85rem; font-weight: 500; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">Lupa password?</a>
+                        </div>
                         <div class="input-container">
                             <i class="bi bi-lock input-icon"></i>
                             <input type="password" 
@@ -94,7 +97,7 @@
 
                     <!-- Submit Button -->
                     <button type="submit" class="btn-login">
-                        Masuk ke Sistem <i class="bi bi-arrow-right-short ms-1"></i>
+                        Login <i class="bi bi-arrow-right-short ms-1"></i>
                     </button>
                 </form>
             </div>
@@ -103,20 +106,21 @@
 
     <!-- Bootstrap 5 JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
-    <!-- Password Visibility Toggle Script -->
+    <!-- Password Visibility Toggle & Forgot Password Script -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Toggle Password
             const passwordInput = document.getElementById('password');
             const toggleButton = document.getElementById('togglePasswordBtn');
             const toggleIcon = document.getElementById('togglePasswordIcon');
             
             toggleButton.addEventListener('click', function() {
-                // Toggle the type attribute
                 const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
                 passwordInput.setAttribute('type', type);
                 
-                // Toggle the eye / eye-slash icon
                 if (type === 'text') {
                     toggleIcon.classList.remove('bi-eye');
                     toggleIcon.classList.add('bi-eye-slash');
@@ -124,6 +128,24 @@
                     toggleIcon.classList.remove('bi-eye-slash');
                     toggleIcon.classList.add('bi-eye');
                 }
+            });
+
+            // Forgot Password Popup
+            document.getElementById('forgotPasswordBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                Swal.fire({
+                    title: 'Lupa Password?',
+                    html: '<p style="color: #6c757d; font-size: 0.95rem; margin-top: 10px;">Silakan hubungi <b>Administrator (Bagian Akademik / Prodi)</b> untuk melakukan reset password akun Anda ke default.</p>',
+                    icon: 'info',
+                    iconColor: '#0d6efd',
+                    confirmButtonText: 'Mengerti',
+                    confirmButtonColor: '#0d6efd',
+                    customClass: {
+                        popup: 'rounded-4 shadow-sm border-0',
+                        confirmButton: 'btn btn-primary px-4 py-2 rounded-3 fw-medium'
+                    },
+                    buttonsStyling: false
+                });
             });
         });
     </script>

@@ -195,5 +195,10 @@
                 </table>
             </div>
         </div>
+        
+        <!-- Pagination Links -->
+        <div class="mt-4 mb-3 d-flex justify-content-center">
+            <?= $pager->links('logbooks', 'custom_pagination') ?>
+        </div>
     </div>
 <?= $this->endSection() ?>

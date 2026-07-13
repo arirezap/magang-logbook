@@ -29,8 +29,10 @@ class UserController extends BaseController
         $filterNama = $this->request->getGet('nama');
         $filterProdi = $this->request->getGet('prodi');
         $filterRole = $this->request->getGet('role');
+        $perPage = $this->request->getGet('per_page') ?? 10;
 
-        $users = $this->userModel->getUsersWithDetails($role, $prodi_id, $filterNama, $filterProdi, $filterRole);
+        $users = $this->userModel->getUsersWithDetails($role, $prodi_id, $filterNama, $filterProdi, $filterRole, $perPage);
+        $pager = $this->userModel->pager;
 
         // Ambil daftar prodi khusus untuk direktur/wadir/kabag/superadmin
         $prodiList = [];
@@ -46,7 +48,9 @@ class UserController extends BaseController
             'filterNama'  => $filterNama,
             'filterProdi' => $filterProdi,
             'filterRole'  => $filterRole,
-            'prodiList'   => $prodiList
+            'prodiList'   => $prodiList,
+            'perPage'     => $perPage,
+            'pager'       => $pager
         ];
 
         return view('users/index', $data);

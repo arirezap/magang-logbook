@@ -167,5 +167,10 @@
                 </table>
             </div>
         </div>
+        
+        <!-- Pagination Links -->
+        <div class="mt-4 mb-3 d-flex justify-content-center">
+            <?= $pager->links('users', 'custom_pagination') ?>
+        </div>
     </div>
 <?= $this->endSection() ?>

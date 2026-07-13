@@ -30,7 +30,7 @@ class LogbookModel extends Model
     protected $deletedField  = 'deleted_at';
 
     // Fungsi custom untuk Dosen Pembimbing
-    public function getLogbooksForPembimbing($pembimbing_id, $filterTanggal = null, $filterNama = null, $filterStatus = null)
+    public function getLogbooksForPembimbing($pembimbing_id, $filterTanggal = null, $filterNama = null, $filterStatus = null, $perPage = 10)
     {
         $builder = $this->select('logbooks.*, users.nama as nama_taruna, users.nomor_induk as notar_taruna, prodi.nama_prodi, users.kelas, pm.tempat_magang as tempat_magang_logbook, pm.tahun_ajaran, pm.periode')
                     ->join('users', 'users.id = logbooks.user_id')
@@ -39,7 +39,13 @@ class LogbookModel extends Model
                     ->where('pm.pembimbing_id', $pembimbing_id);
                     
         if (!empty($filterTanggal)) {
-            $builder->where('logbooks.tanggal', $filterTanggal);
+            $separator = strpos($filterTanggal, ' - ') !== false ? ' - ' : ' to ';
+            $dates = explode($separator, $filterTanggal);
+            $start_date = trim($dates[0]);
+            $end_date = isset($dates[1]) ? trim($dates[1]) : $start_date;
+            
+            $builder->where('logbooks.tanggal >=', $start_date);
+            $builder->where('logbooks.tanggal <=', $end_date);
         }
 
         if (!empty($filterNama)) {
@@ -53,12 +59,12 @@ class LogbookModel extends Model
             $builder->where('logbooks.status', $filterStatus);
         }
 
-        return $builder->orderBy('logbooks.created_at', 'DESC')->findAll();
+        return $builder->orderBy('logbooks.created_at', 'DESC')->paginate($perPage, 'logbooks');
     }
 
 
     // Fungsi custom untuk Laporan Global (Admin Prodi, Kaprodi, Direktur, Wadir, Kabag & Superadmin)
-    public function getAllLogbooksGlobal($role, $prodi_id, $filterTanggal = null, $filterNama = null, $filterProdi = null, $filterKelas = null, $filterStatus = null)
+    public function getAllLogbooksGlobal($role, $prodi_id = null, $filterTanggal = null, $filterNama = null, $filterProdi = null, $filterKelas = null, $filterStatus = null, $perPage = 0)
     {
         $builder = $this->select('logbooks.*, users.nama as nama_taruna, users.nomor_induk as notar_taruna, prodi.nama_prodi, users.kelas, pm.tempat_magang as tempat_magang_logbook, pm.tahun_ajaran, pm.periode, pp.nama as nama_pembimbing')
                     ->join('users', 'users.id = logbooks.user_id')
@@ -75,7 +81,13 @@ class LogbookModel extends Model
         }
 
         if (!empty($filterTanggal)) {
-            $builder->where('logbooks.tanggal', $filterTanggal);
+            $separator = strpos($filterTanggal, ' - ') !== false ? ' - ' : ' to ';
+            $dates = explode($separator, $filterTanggal);
+            $start_date = trim($dates[0]);
+            $end_date = isset($dates[1]) ? trim($dates[1]) : $start_date;
+            
+            $builder->where('logbooks.tanggal >=', $start_date);
+            $builder->where('logbooks.tanggal <=', $end_date);
         }
 
         if (!empty($filterNama)) {
@@ -93,7 +105,12 @@ class LogbookModel extends Model
             $builder->where('logbooks.status', $filterStatus);
         }
 
-        // Pejabat dan Superadmin bisa melihat semua
+        // Jika $perPage > 0, gunakan pagination
+        if ($perPage > 0) {
+            return $builder->orderBy('logbooks.tanggal', 'DESC')->paginate($perPage, 'logbooks');
+        }
+
+        // Pejabat dan Superadmin bisa melihat semua (untuk statistik)
         return $builder->orderBy('logbooks.tanggal', 'DESC')->findAll();
     }
 }

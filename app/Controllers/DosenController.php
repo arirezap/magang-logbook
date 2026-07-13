@@ -26,14 +26,13 @@ class DosenController extends BaseController
             return redirect()->to('/dashboard')->with('error', 'Akses ditolak.');
         }
 
-        $builder = $this->userModel->builder();
-        $builder->select('users.*, prodi.nama_prodi')
+        $this->userModel->select('users.*, prodi.nama_prodi')
                 ->join('prodi', 'prodi.id = users.prodi_id', 'left')
                 ->where('users.role', 'pembimbing')
                 ->orderBy('users.nama', 'ASC');
                 
         if ($role === 'admin_prodi' || $role === 'kaprodi') {
-            $builder->where('users.prodi_id', session()->get('prodi_id'));
+            $this->userModel->where('users.prodi_id', session()->get('prodi_id'));
         }
 
         // Filter Data by Prodi & Nama (hanya untuk superadmin/direktur/wadir/kabag)
@@ -41,26 +40,32 @@ class DosenController extends BaseController
         $filterNama = $this->request->getGet('nama');
         
         if (!empty($filterProdi) && in_array($role, ['direktur', 'wadir', 'kabag', 'superadmin'])) {
-            $builder->where('users.prodi_id', $filterProdi);
+            $this->userModel->where('users.prodi_id', $filterProdi);
         }
         
         if (!empty($filterNama)) {
-            $builder->groupStart()
+            $this->userModel->groupStart()
                     ->like('users.nama', $filterNama)
                     ->orLike('users.nomor_induk', $filterNama)
                     ->groupEnd();
         }
 
-        $dosenList = $builder->get()->getResultArray();
+        $perPage = $this->request->getGet('per_page') ?? 10;
+        $dosenList = $this->userModel->paginate($perPage, 'dosen');
+        $pager = $this->userModel->pager;
+
+        // Ambil data prodi untuk form tambah dan filter
         $prodiList = $this->prodiModel->findAll();
 
         $data = [
             'title'       => 'Input Data Dosen Pembimbing',
             'dosenList'   => $dosenList,
             'prodiList'   => $prodiList,
+            'userRole'    => $role,
             'filterProdi' => $filterProdi,
             'filterNama'  => $filterNama,
-            'userRole'    => $role
+            'perPage'     => $perPage,
+            'pager'       => $pager
         ];
 
         return view('admin/input_data_dosen/index', $data);

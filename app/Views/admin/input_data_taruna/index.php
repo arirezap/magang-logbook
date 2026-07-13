@@ -186,6 +186,11 @@
             </div>
             </form>
         <?php endif; ?>
+        
+        <!-- Pagination Links -->
+        <div class="mt-4 mb-3 d-flex justify-content-center">
+            <?= $pager->links('penugasan', 'custom_pagination') ?>
+        </div>
     </div>
 </div>
 

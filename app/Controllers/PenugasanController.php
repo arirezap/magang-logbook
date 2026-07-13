@@ -27,8 +27,7 @@ class PenugasanController extends BaseController
             return redirect()->to('/dashboard')->with('error', 'Akses ditolak.');
         }
 
-        $builder = $this->userModel->builder();
-        $builder->select('penugasan_magang.id as penugasan_id, penugasan_magang.tahun_ajaran, penugasan_magang.periode, penugasan_magang.tempat_magang, penugasan_magang.status_aktif, penugasan_magang.tanggal_mulai, penugasan_magang.tanggal_selesai, penugasan_magang.pembimbing_id, users.nama as nama_taruna, users.nomor_induk, p.nama as nama_pembimbing, users.id as taruna_id')
+        $this->userModel->select('penugasan_magang.id as penugasan_id, penugasan_magang.tahun_ajaran, penugasan_magang.periode, penugasan_magang.tempat_magang, penugasan_magang.status_aktif, penugasan_magang.tanggal_mulai, penugasan_magang.tanggal_selesai, penugasan_magang.pembimbing_id, users.nama as nama_taruna, users.nomor_induk, p.nama as nama_pembimbing, users.id as taruna_id')
                 ->join('penugasan_magang', 'penugasan_magang.taruna_id = users.id', 'left')
                 ->join('users p', 'p.id = penugasan_magang.pembimbing_id', 'left')
                 ->where('users.role', 'taruna')
@@ -36,7 +35,7 @@ class PenugasanController extends BaseController
                 
         // Jika admin prodi, batasi hanya melihat taruna dari prodinya
         if ($role === 'admin_prodi' || $role === 'kaprodi') {
-            $builder->where('users.prodi_id', session()->get('prodi_id'));
+            $this->userModel->where('users.prodi_id', session()->get('prodi_id'));
         }
 
         // Filter Data
@@ -46,22 +45,24 @@ class PenugasanController extends BaseController
         $filterProdi = $this->request->getGet('prodi_id');
         
         if (!empty($filterTahun)) {
-            $builder->where('penugasan_magang.tahun_ajaran', $filterTahun);
+            $this->userModel->where('penugasan_magang.tahun_ajaran', $filterTahun);
         }
         if (!empty($filterPeriode)) {
-            $builder->where('penugasan_magang.periode', $filterPeriode);
+            $this->userModel->where('penugasan_magang.periode', $filterPeriode);
         }
         if (!empty($filterNama)) {
-            $builder->groupStart()
+            $this->userModel->groupStart()
                     ->like('users.nama', $filterNama)
                     ->orLike('users.nomor_induk', $filterNama)
                     ->groupEnd();
         }
         if (!empty($filterProdi) && in_array($role, ['direktur', 'wadir', 'kabag', 'superadmin'])) {
-            $builder->where('users.prodi_id', $filterProdi);
+            $this->userModel->where('users.prodi_id', $filterProdi);
         }
 
-        $penugasan = $builder->get()->getResultArray();
+        $perPage = $this->request->getGet('per_page') ?? 10;
+        $penugasan = $this->userModel->paginate($perPage, 'penugasan');
+        $pager = $this->userModel->pager;
         
         // Ambil tahun ajaran unik untuk filter
         $tahunList = $this->penugasanModel->select('tahun_ajaran')->distinct()->orderBy('tahun_ajaran', 'DESC')->findAll();
@@ -100,7 +101,9 @@ class PenugasanController extends BaseController
             'filterPeriode'  => $filterPeriode,
             'filterNama'     => $filterNama,
             'filterProdi'    => $filterProdi,
-            'userRole'       => $role
+            'userRole'       => $role,
+            'perPage'        => $perPage,
+            'pager'          => $pager
         ];
 
         return view('admin/input_data_taruna/index', $data);
@@ -145,19 +148,26 @@ class PenugasanController extends BaseController
                              ->set(['status_aktif' => false])
                              ->update();
 
-        // Buat penugasan baru
-        $this->penugasanModel->save([
-            'taruna_id'       => $this->request->getPost('taruna_id'),
-            'pembimbing_id'   => $this->request->getPost('pembimbing_id'),
-            'tahun_ajaran'    => $this->request->getPost('tahun_ajaran'),
-            'periode'         => $this->request->getPost('periode'),
-            'tempat_magang'   => $this->request->getPost('tempat_magang'),
-            'tanggal_mulai'   => $this->request->getPost('tanggal_mulai') ?: null,
-            'tanggal_selesai' => $this->request->getPost('tanggal_selesai') ?: null,
-            'status_aktif'    => true
-        ]);
+        try {
+            // Buat penugasan baru
+            $this->penugasanModel->save([
+                'taruna_id'       => $this->request->getPost('taruna_id'),
+                'pembimbing_id'   => $this->request->getPost('pembimbing_id'),
+                'tahun_ajaran'    => $this->request->getPost('tahun_ajaran'),
+                'periode'         => $this->request->getPost('periode'),
+                'tempat_magang'   => $this->request->getPost('tempat_magang'),
+                'tanggal_mulai'   => $this->request->getPost('tanggal_mulai') ?: null,
+                'tanggal_selesai' => $this->request->getPost('tanggal_selesai') ?: null,
+                'status_aktif'    => true
+            ]);
 
-        return redirect()->back()->with('success', 'Penugasan magang berhasil ditambahkan.');
+            return redirect()->back()->with('success', 'Penugasan magang berhasil ditambahkan.');
+        } catch (\CodeIgniter\Database\Exceptions\DatabaseException $e) {
+            if (strpos($e->getMessage(), 'Duplicate entry') !== false) {
+                return redirect()->back()->withInput()->with('error', 'Gagal: Taruna tersebut sudah memiliki penugasan di periode yang sama (Terdeteksi penugasan ganda).');
+            }
+            return redirect()->back()->withInput()->with('error', 'Terjadi kesalahan pada sistem saat menyimpan data.');
+        }
     }
 
     public function update($id)
