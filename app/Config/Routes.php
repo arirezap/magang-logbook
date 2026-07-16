@@ -33,6 +33,7 @@ $routes->group('', ['filter' => 'auth'], static function ($routes) {
     $routes->get('/users/edit/(:num)', 'UserController::edit/$1');
     $routes->post('/users/update/(:num)', 'UserController::update/$1');
     $routes->get('/users/delete/(:num)', 'UserController::delete/$1');
+    $routes->post('/users/batchDelete', 'UserController::batchDelete');
 
     // Rute Laporan Global
     $routes->get('/laporan', 'LaporanGlobalController::index');
