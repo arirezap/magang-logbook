@@ -84,11 +84,36 @@
         <?php else: ?>
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0">
+                    <?php
+                        $currentSort = request()->getGet('sort') ?? 'nama';
+                        $currentOrder = strtolower(request()->getGet('order') ?? 'asc');
+                        $nextOrder = ($currentOrder == 'asc') ? 'desc' : 'asc';
+                        
+                        $buildSortUrl = function($field) use ($currentSort, $currentOrder, $nextOrder) {
+                            $params = $_GET;
+                            $params['sort'] = $field;
+                            $params['order'] = ($currentSort == $field) ? $nextOrder : 'asc';
+                            return current_url() . '?' . http_build_query($params);
+                        };
+                        
+                        $sortIcon = function($field) use ($currentSort, $currentOrder) {
+                            if ($currentSort == $field) {
+                                return $currentOrder == 'asc' ? '<i class="bi bi-sort-alpha-down"></i>' : '<i class="bi bi-sort-alpha-down-alt"></i>';
+                            }
+                            return '<i class="bi bi-arrow-down-up text-muted opacity-25"></i>';
+                        };
+                    ?>
                     <thead style="background: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%); border-bottom: 2px solid #e8eeff;">
                         <tr>
-                            <th class="px-4 py-3 fw-bold text-muted" style="font-size: 0.8rem; letter-spacing: 0.5px;">DOSEN PEMBIMBING</th>
-                            <th class="py-3 fw-bold text-muted" style="font-size: 0.8rem; letter-spacing: 0.5px;">PROGRAM STUDI</th>
-                            <th class="py-3 fw-bold text-muted" style="font-size: 0.8rem; letter-spacing: 0.5px;">TANGGAL DITAMBAHKAN</th>
+                            <th class="px-4 py-3 fw-bold text-muted" style="font-size: 0.8rem; letter-spacing: 0.5px;">
+                                <a href="<?= $buildSortUrl('nama') ?>" class="text-decoration-none text-secondary d-flex align-items-center gap-2">DOSEN PEMBIMBING <?= $sortIcon('nama') ?></a>
+                            </th>
+                            <th class="py-3 fw-bold text-muted" style="font-size: 0.8rem; letter-spacing: 0.5px;">
+                                <a href="<?= $buildSortUrl('prodi') ?>" class="text-decoration-none text-secondary d-flex align-items-center gap-2">PROGRAM STUDI <?= $sortIcon('prodi') ?></a>
+                            </th>
+                            <th class="py-3 fw-bold text-muted" style="font-size: 0.8rem; letter-spacing: 0.5px;">
+                                TANGGAL DITAMBAHKAN
+                            </th>
                         </tr>
                     </thead>
                     <tbody>

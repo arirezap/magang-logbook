@@ -27,11 +27,22 @@ class PenugasanController extends BaseController
             return redirect()->to('/dashboard')->with('error', 'Akses ditolak.');
         }
 
+        $sort = $this->request->getGet('sort') ?? 'nama';
+        $order = strtolower($this->request->getGet('order') ?? 'asc') === 'desc' ? 'DESC' : 'ASC';
+        
+        $validSorts = [
+            'nama' => 'users.nama',
+            'notar' => 'users.nomor_induk',
+            'tempat' => 'penugasan_magang.tempat_magang',
+            'pembimbing' => 'p.nama'
+        ];
+        $sortColumn = $validSorts[$sort] ?? 'users.nama';
+
         $this->userModel->select('penugasan_magang.id as penugasan_id, penugasan_magang.tahun_ajaran, penugasan_magang.periode, penugasan_magang.tempat_magang, penugasan_magang.status_aktif, penugasan_magang.tanggal_mulai, penugasan_magang.tanggal_selesai, penugasan_magang.pembimbing_id, users.nama as nama_taruna, users.nomor_induk, p.nama as nama_pembimbing, users.id as taruna_id')
                 ->join('penugasan_magang', 'penugasan_magang.taruna_id = users.id', 'left')
                 ->join('users p', 'p.id = penugasan_magang.pembimbing_id', 'left')
                 ->where('users.role', 'taruna')
-                ->orderBy('users.nama', 'ASC');
+                ->orderBy($sortColumn, $order);
                 
         // Jika admin prodi, batasi hanya melihat taruna dari prodinya
         if ($role === 'admin_prodi' || $role === 'kaprodi') {
@@ -306,11 +317,41 @@ class PenugasanController extends BaseController
                 $pembimbing_id = null;
                 if (!empty($row[5])) {
                     $inputDosen = strtolower(trim($row[5]));
+                    
+                    // Fungsi anonim untuk membersihkan nama dari gelar dan tanda baca
+                    $cleanName = function($str) {
+                        $str = preg_replace('/[^a-z0-9\s]/', ' ', $str);
+                        $words = explode(' ', $str);
+                        $gelars = ['dr', 'prof', 'ir', 'st', 'mt', 'ssi', 'msi', 'msc', 'spd', 'mpd', 'mm', 'se', 'sh', 'mh', 'phd', 'amd', 'sst', 'atd', 'eng', 'ms', 'm', 's', 'dipl'];
+                        $cleanWords = array_filter($words, function($w) use ($gelars) {
+                            return strlen($w) > 2 && !in_array($w, $gelars);
+                        });
+                        return implode('', $cleanWords);
+                    };
+                    
+                    $cleanInput = $cleanName($inputDosen);
+
                     foreach ($allPembimbing as $dsn) {
                         $dsnName = strtolower($dsn['nama']);
                         $dsnNip = strtolower($dsn['nomor_induk']);
+                        $cleanDbName = $cleanName($dsnName);
                         
-                        if (strpos($dsnName, $inputDosen) !== false || strpos($dsnNip, $inputDosen) !== false || strpos($inputDosen, $dsnName) !== false || strpos($inputDosen, $dsnNip) !== false) {
+                        // Coba pencocokan NIP dulu (paling akurat)
+                        if (strpos($dsnNip, $inputDosen) !== false || strpos($inputDosen, $dsnNip) !== false) {
+                            $pembimbing_id = $dsn['id'];
+                            break;
+                        }
+                        
+                        // Coba pencocokan nama yang sudah dibersihkan dari gelar
+                        if (!empty($cleanInput) && !empty($cleanDbName)) {
+                            if (strpos($cleanDbName, $cleanInput) !== false || strpos($cleanInput, $cleanDbName) !== false) {
+                                $pembimbing_id = $dsn['id'];
+                                break;
+                            }
+                        }
+                        
+                        // Fallback ke pencocokan original jika tidak match
+                        if (strpos($dsnName, $inputDosen) !== false || strpos($inputDosen, $dsnName) !== false) {
                             $pembimbing_id = $dsn['id'];
                             break;
                         }

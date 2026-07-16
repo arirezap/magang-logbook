@@ -16,11 +16,16 @@ class LaporanGlobalController extends BaseController
     public function index()
     {
         $role = strtolower(session()->get('role'));
+        $role_kedua = strtolower(session()->get('role_kedua') ?? '');
+        $allowedRoles = ['superadmin', 'admin_prodi', 'kaprodi', 'direktur', 'wadir', 'kabag'];
         
         // Hanya Superadmin, Admin Prodi, Kaprodi, Direktur, Wadir, dan Kabag yang bisa mengakses
-        if (!in_array($role, ['superadmin', 'admin_prodi', 'kaprodi', 'direktur', 'wadir', 'kabag'])) {
+        if (!in_array($role, $allowedRoles) && !in_array($role_kedua, $allowedRoles)) {
             return redirect()->to('/dashboard')->with('error', 'Akses ditolak.');
         }
+
+        // Tentukan role efektif untuk pengambilan data
+        $effectiveRole = in_array($role, $allowedRoles) ? $role : $role_kedua;
 
         $prodi_id = session()->get('prodi_id');
         
@@ -33,7 +38,7 @@ class LaporanGlobalController extends BaseController
         $perPage = $this->request->getGet('per_page') ?? 10;
         
         // 1. Ambil semua logbook sesuai filter untuk menghitung statistik (tanpa paginasi)
-        $allLogbooksForStats = $this->logbookModel->getAllLogbooksGlobal($role, $prodi_id, $filterTanggal, $filterNama, $filterProdi, $filterKelas, $filterStatus);
+        $allLogbooksForStats = $this->logbookModel->getAllLogbooksGlobal($effectiveRole, $prodi_id, $filterTanggal, $filterNama, $filterProdi, $filterKelas, $filterStatus);
 
         // Rekapitulasi Statistik Sederhana
         $total = count($allLogbooksForStats);
@@ -48,12 +53,12 @@ class LaporanGlobalController extends BaseController
         }
 
         // 2. Ambil logbook dengan paginasi untuk ditampilkan di tabel
-        $logbooks = $this->logbookModel->getAllLogbooksGlobal($role, $prodi_id, $filterTanggal, $filterNama, $filterProdi, $filterKelas, $filterStatus, $perPage);
+        $logbooks = $this->logbookModel->getAllLogbooksGlobal($effectiveRole, $prodi_id, $filterTanggal, $filterNama, $filterProdi, $filterKelas, $filterStatus, $perPage);
         $pager = $this->logbookModel->pager;
         
         // Ambil daftar prodi khusus untuk direktur/wadir/kabag/superadmin
         $prodiList = [];
-        if (in_array($role, ['superadmin', 'direktur', 'wadir', 'kabag'])) {
+        if (in_array($effectiveRole, ['superadmin', 'direktur', 'wadir', 'kabag'])) {
             $prodiModel = new \App\Models\ProdiModel();
             $prodiList = $prodiModel->getOrderedProdi();
         }
@@ -65,7 +70,7 @@ class LaporanGlobalController extends BaseController
         $data = [
             'title'          => 'Laporan Global Magang',
             'logbooks'       => $logbooks,
-            'userRole'       => $role,
+            'userRole'       => $effectiveRole,
             'total'          => $total,
             'disetujui'      => $disetujui,
             'pending'        => $pending,
@@ -76,7 +81,6 @@ class LaporanGlobalController extends BaseController
             'filterKelas'    => $filterKelas,
             'filterStatus'   => $filterStatus,
             'prodiList'      => $prodiList,
-            'userRole'       => $role,
             'perPage'        => $perPage,
             'pager'          => $pager,
             'kelasList'      => $kelasList

@@ -31,7 +31,10 @@ class UserController extends BaseController
         $filterRole = $this->request->getGet('role');
         $perPage = $this->request->getGet('per_page') ?? 10;
 
-        $users = $this->userModel->getUsersWithDetails($role, $prodi_id, $filterNama, $filterProdi, $filterRole, $perPage);
+        $sort = $this->request->getGet('sort') ?? 'nama';
+        $order = strtolower($this->request->getGet('order') ?? 'asc') === 'desc' ? 'DESC' : 'ASC';
+
+        $users = $this->userModel->getUsersWithDetails($role, $prodi_id, $filterNama, $filterProdi, $filterRole, $perPage, $sort, $order);
         $pager = $this->userModel->pager;
 
         // Ambil daftar prodi khusus untuk direktur/wadir/kabag/superadmin
@@ -111,6 +114,7 @@ class UserController extends BaseController
             'nama'        => $this->request->getPost('nama'),
             'password'    => password_hash($this->request->getPost('password'), PASSWORD_DEFAULT),
             'role'        => $targetRole,
+            'role_kedua'  => ($targetRole == 'pembimbing' && !empty($this->request->getPost('role_kedua'))) ? $this->request->getPost('role_kedua') : null,
         ];
 
         // Sesuaikan relasi berdasarkan Role yang dibuat
@@ -197,6 +201,7 @@ class UserController extends BaseController
             'nomor_induk' => $this->request->getPost('nomor_induk'),
             'nama'        => $this->request->getPost('nama'),
             'role'        => $targetRole,
+            'role_kedua'  => ($targetRole == 'pembimbing' && !empty($this->request->getPost('role_kedua'))) ? $this->request->getPost('role_kedua') : null,
         ];
 
         // Jika password diisi, maka update password

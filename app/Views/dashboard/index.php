@@ -152,9 +152,12 @@
                 </div>
             </div>
 
-        <?php elseif($user['role'] == 'pembimbing'): ?>
+        <?php endif; ?>
+
+        <?php if(!empty($stats_bimbingan)): ?>
             <!-- Stats Widgets for Pembimbing -->
-            <div class="col-12">
+            <div class="col-12 mt-4">
+                <h5 class="fw-bold mb-3"><i class="bi bi-people-fill text-primary"></i> Statistik Bimbingan Saya</h5>
                 <div class="row g-3">
                     <div class="col-12 col-md-6">
                         <div class="card dashboard-stat-card">
@@ -164,7 +167,7 @@
                                 </div>
                                 <div>
                                     <div class="text-muted mb-1" style="font-size: 0.85rem; font-weight: 500;">Taruna Bimbingan Anda</div>
-                                    <h3 class="fw-bold m-0 text-dark"><?= $stats['total_taruna'] ?> <span class="fs-6 fw-normal text-muted">Orang</span></h3>
+                                    <h3 class="fw-bold m-0 text-dark"><?= $stats_bimbingan['total_taruna'] ?> <span class="fs-6 fw-normal text-muted">Orang</span></h3>
                                 </div>
                             </div>
                         </div>
@@ -177,17 +180,19 @@
                                 </div>
                                 <div>
                                     <div class="text-muted mb-1" style="font-size: 0.85rem; font-weight: 500;">Logbook Menunggu Validasi</div>
-                                    <h3 class="fw-bold m-0 text-dark"><?= $stats['pending_validasi'] ?> <span class="fs-6 fw-normal text-muted">Laporan</span></h3>
+                                    <h3 class="fw-bold m-0 text-dark"><?= $stats_bimbingan['pending_validasi'] ?> <span class="fs-6 fw-normal text-muted">Laporan</span></h3>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+        <?php endif; ?>
 
-        <?php else: ?>
+        <?php if(!empty($stats_monitoring)): ?>
             <!-- Stats Widgets for Admins / Pejabat -->
-            <div class="col-12">
+            <div class="col-12 mt-4">
+                <h5 class="fw-bold mb-3"><i class="bi bi-display text-primary"></i> Statistik Monitoring (Global)</h5>
                 <div class="row g-3">
                     <div class="col-6 col-md-3">
                         <div class="card dashboard-stat-card">
@@ -197,7 +202,7 @@
                                 </div>
                                 <div>
                                     <div class="text-muted" style="font-size: 0.8rem; font-weight: 500;">Total Taruna</div>
-                                    <h4 class="fw-bold m-0 text-dark"><?= $stats['total_taruna'] ?></h4>
+                                    <h4 class="fw-bold m-0 text-dark"><?= $stats_monitoring['total_taruna'] ?></h4>
                                 </div>
                             </div>
                         </div>
@@ -210,7 +215,7 @@
                                 </div>
                                 <div>
                                     <div class="text-muted" style="font-size: 0.8rem; font-weight: 500;">Total Pembimbing</div>
-                                    <h4 class="fw-bold m-0 text-dark"><?= $stats['total_pembimbing'] ?></h4>
+                                    <h4 class="fw-bold m-0 text-dark"><?= $stats_monitoring['total_pembimbing'] ?></h4>
                                 </div>
                             </div>
                         </div>
@@ -223,7 +228,7 @@
                                 </div>
                                 <div>
                                     <div class="text-muted" style="font-size: 0.8rem; font-weight: 500;">Logbook Hari Ini</div>
-                                    <h4 class="fw-bold m-0 text-dark"><?= $stats['logbook_hari_ini'] ?></h4>
+                                    <h4 class="fw-bold m-0 text-dark"><?= $stats_monitoring['logbook_hari_ini'] ?></h4>
                                 </div>
                             </div>
                         </div>
@@ -236,7 +241,7 @@
                                 </div>
                                 <div>
                                     <div class="text-muted" style="font-size: 0.8rem; font-weight: 500;">Laporan Pending</div>
-                                    <h4 class="fw-bold m-0 text-dark"><?= $stats['pending_logbook'] ?></h4>
+                                    <h4 class="fw-bold m-0 text-dark"><?= $stats_monitoring['pending_logbook'] ?></h4>
                                 </div>
                             </div>
                         </div>

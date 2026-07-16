@@ -45,7 +45,13 @@
                     </li>
                     
                     <!-- 2. Laporan -->
-                    <?php if(in_array(strtolower(session()->get('role')), ['admin_prodi', 'kaprodi', 'direktur', 'wadir', 'kabag', 'superadmin'])): ?>
+                    <?php 
+                        $sessRole = strtolower(session()->get('role'));
+                        $sessRole2 = strtolower(session()->get('role_kedua') ?? '');
+                        $isPejabat = in_array($sessRole, ['admin_prodi', 'kaprodi', 'direktur', 'wadir', 'kabag', 'superadmin']) || in_array($sessRole2, ['admin_prodi', 'kaprodi', 'direktur', 'wadir', 'kabag', 'superadmin']);
+                        $isPembimbing = ($sessRole == 'pembimbing' || $sessRole2 == 'pembimbing');
+                    ?>
+                    <?php if($isPejabat): ?>
                     <li class="nav-item">
                         <a class="nav-link <?= ($current_route == 'laporan') ? 'active' : '' ?>" href="<?= base_url('/laporan') ?>">
                             Laporan
@@ -54,7 +60,7 @@
                     <?php endif; ?>
 
                     <!-- 3. Lainnya -->
-                    <?php if(strtolower(session()->get('role')) == 'taruna'): ?>
+                    <?php if($sessRole == 'taruna'): ?>
                     <li class="nav-item">
                         <a class="nav-link <?= ($current_route == 'logbook') ? 'active' : '' ?>" href="<?= base_url('/logbook') ?>">
                             Isi Logbook
@@ -62,7 +68,7 @@
                     </li>
                     <?php endif; ?>
  
-                    <?php if(strtolower(session()->get('role')) == 'pembimbing'): ?>
+                    <?php if($isPembimbing): ?>
                     <li class="nav-item">
                         <a class="nav-link <?= ($current_route == 'validasi') ? 'active' : '' ?>" href="<?= base_url('/validasi') ?>">
                             Validasi Logbook
@@ -75,7 +81,7 @@
                     </li>
                     <?php endif; ?>
  
-                    <?php if(in_array(strtolower(session()->get('role')), ['admin_prodi', 'kaprodi', 'direktur', 'wadir', 'kabag', 'superadmin'])): ?>
+                    <?php if($isPejabat): ?>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle <?= ($current_route == 'input-data-taruna' || $current_route == 'input-data-dosen') ? 'active' : '' ?>" href="#" id="masterDataDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             Master Data
@@ -90,7 +96,7 @@
  
                 <!-- Right Side Action Icons -->
                 <div class="d-flex align-items-center gap-4 mt-3 mt-lg-0 border-start border-light border-opacity-25 ps-4 ms-2">
-                    <?php if(in_array(strtolower(session()->get('role')), ['admin_prodi', 'kaprodi', 'direktur', 'wadir', 'kabag', 'superadmin'])): ?>
+                    <?php if($isPejabat): ?>
                     <a href="<?= base_url('/users') ?>" class="text-white text-decoration-none fs-5 opacity-75 <?= ($current_route == 'users') ? 'opacity-100' : '' ?>" title="Pengaturan" style="transition: all 0.2s; outline: none;" onmouseover="this.classList.replace('opacity-75', 'opacity-100')" onmouseout="this.classList.replace('opacity-100', 'opacity-75')">
                         <i class="bi bi-gear-fill"></i>
                     </a>

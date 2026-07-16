@@ -15,9 +15,12 @@ class ValidasiLogbookController extends BaseController
 
     public function index()
     {
-        // Pastikan hanya pembimbing yang bisa mengakses
-        if (session()->get('role') !== 'pembimbing') {
-            return redirect()->to('/dashboard')->with('error', 'Akses ditolak. Halaman ini khusus Dosen Pembimbing.');
+        $role = strtolower(session()->get('role'));
+        $role_kedua = strtolower(session()->get('role_kedua') ?? '');
+        
+        // Fitur ini khusus untuk Dosen Pembimbing (baik sebagai role utama maupun role_kedua)
+        if ($role != 'pembimbing' && $role_kedua != 'pembimbing') {
+            return redirect()->to('/dashboard')->with('error', 'Akses khusus Dosen Pembimbing.');
         }
 
         $pembimbing_id = session()->get('id');
@@ -46,12 +49,13 @@ class ValidasiLogbookController extends BaseController
 
     public function updateStatus($id)
     {
-        // Pastikan hanya pembimbing yang bisa melakukan aksi validasi
-        if (session()->get('role') !== 'pembimbing') {
-            return redirect()->to('/dashboard');
-        }
-
-        $logbook = $this->logbookModel->find($id);
+        $role = strtolower(session()->get('role'));
+        $role_kedua = strtolower(session()->get('role_kedua') ?? '');
+        
+        // Fitur ini khusus untuk Dosen Pembimbing
+        if ($role != 'pembimbing' && $role_kedua != 'pembimbing') {
+            return redirect()->to('/dashboard')->with('error', 'Akses khusus Dosen Pembimbing.');
+        }$logbook = $this->logbookModel->find($id);
 
         if (!$logbook) {
             return redirect()->to('/validasi')->with('error', 'Data logbook tidak ditemukan.');

@@ -107,15 +107,42 @@
             <?= csrf_field() ?>
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0">
+                    <?php
+                        $currentSort = request()->getGet('sort') ?? 'nama';
+                        $currentOrder = strtolower(request()->getGet('order') ?? 'asc');
+                        $nextOrder = ($currentOrder == 'asc') ? 'desc' : 'asc';
+                        
+                        $buildSortUrl = function($field) use ($currentSort, $currentOrder, $nextOrder) {
+                            $params = $_GET;
+                            $params['sort'] = $field;
+                            $params['order'] = ($currentSort == $field) ? $nextOrder : 'asc';
+                            return current_url() . '?' . http_build_query($params);
+                        };
+                        
+                        $sortIcon = function($field) use ($currentSort, $currentOrder) {
+                            if ($currentSort == $field) {
+                                return $currentOrder == 'asc' ? '<i class="bi bi-sort-alpha-down"></i>' : '<i class="bi bi-sort-alpha-down-alt"></i>';
+                            }
+                            return '<i class="bi bi-arrow-down-up text-muted opacity-25"></i>';
+                        };
+                    ?>
                     <thead style="background: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%); border-bottom: 2px solid #e8eeff;">
                         <tr>
                             <th class="px-4 py-3" style="width: 50px;">
                                 <input class="form-check-input" type="checkbox" id="checkAll">
                             </th>
-                            <th class="py-3 fw-bold text-muted" style="font-size: 0.8rem; letter-spacing: 0.5px;">TARUNA</th>
-                            <th class="py-3 fw-bold text-muted" style="font-size: 0.8rem; letter-spacing: 0.5px;">PERIODE & TAHUN AJARAN</th>
-                            <th class="py-3 fw-bold text-muted" style="font-size: 0.8rem; letter-spacing: 0.5px;">TEMPAT MAGANG</th>
-                            <th class="py-3 fw-bold text-muted" style="font-size: 0.8rem; letter-spacing: 0.5px;">PEMBIMBING</th>
+                            <th class="py-3 fw-bold text-muted" style="font-size: 0.8rem; letter-spacing: 0.5px;">
+                                <a href="<?= $buildSortUrl('nama') ?>" class="text-decoration-none text-secondary d-flex align-items-center gap-2">TARUNA <?= $sortIcon('nama') ?></a>
+                            </th>
+                            <th class="py-3 fw-bold text-muted" style="font-size: 0.8rem; letter-spacing: 0.5px;">
+                                PERIODE & TAHUN AJARAN
+                            </th>
+                            <th class="py-3 fw-bold text-muted" style="font-size: 0.8rem; letter-spacing: 0.5px;">
+                                <a href="<?= $buildSortUrl('tempat') ?>" class="text-decoration-none text-secondary d-flex align-items-center gap-2">TEMPAT MAGANG <?= $sortIcon('tempat') ?></a>
+                            </th>
+                            <th class="py-3 fw-bold text-muted" style="font-size: 0.8rem; letter-spacing: 0.5px;">
+                                <a href="<?= $buildSortUrl('pembimbing') ?>" class="text-decoration-none text-secondary d-flex align-items-center gap-2">PEMBIMBING <?= $sortIcon('pembimbing') ?></a>
+                            </th>
                             <th class="px-4 py-3 fw-bold text-muted text-center" style="font-size: 0.8rem; letter-spacing: 0.5px;">STATUS & AKSI</th>
                         </tr>
                     </thead>

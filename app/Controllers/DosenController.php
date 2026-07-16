@@ -26,10 +26,20 @@ class DosenController extends BaseController
             return redirect()->to('/dashboard')->with('error', 'Akses ditolak.');
         }
 
+        $sort = $this->request->getGet('sort') ?? 'nama';
+        $order = strtolower($this->request->getGet('order') ?? 'asc') === 'desc' ? 'DESC' : 'ASC';
+        
+        $validSorts = [
+            'nama' => 'users.nama',
+            'nip' => 'users.nomor_induk',
+            'prodi' => 'prodi.nama_prodi'
+        ];
+        $sortColumn = $validSorts[$sort] ?? 'users.nama';
+
         $this->userModel->select('users.*, prodi.nama_prodi')
                 ->join('prodi', 'prodi.id = users.prodi_id', 'left')
                 ->where('users.role', 'pembimbing')
-                ->orderBy('users.nama', 'ASC');
+                ->orderBy($sortColumn, $order);
                 
         if ($role === 'admin_prodi' || $role === 'kaprodi') {
             $this->userModel->where('users.prodi_id', session()->get('prodi_id'));

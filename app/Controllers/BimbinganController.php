@@ -18,8 +18,11 @@ class BimbinganController extends BaseController
 
     public function index()
     {
+        $role = strtolower(session()->get('role'));
+        $role_kedua = strtolower(session()->get('role_kedua') ?? '');
+        
         // Fitur ini khusus untuk Dosen Pembimbing
-        if (session()->get('role') != 'pembimbing') {
+        if ($role != 'pembimbing' && $role_kedua != 'pembimbing') {
             return redirect()->to('/dashboard')->with('error', 'Akses khusus Dosen Pembimbing.');
         }
 

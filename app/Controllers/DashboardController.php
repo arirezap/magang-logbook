@@ -34,12 +34,17 @@ class DashboardController extends BaseController
         // Menggabungkan prodi dan kelas
         $user['kelas_lengkap'] = trim($singkatanProdi . ' ' . ($user['kelas'] ?? ''));
 
-        // Mengambil statistik berdasarkan role
+        // Mengambil statistik berdasarkan role dan role_kedua
         $stats = [];
+        $stats_bimbingan = [];
+        $stats_monitoring = [];
         $logbookModel = new \App\Models\LogbookModel();
-        $role = strtolower($user['role']);
         
-        if ($role == 'taruna') {
+        $role = strtolower($user['role']);
+        $role_kedua = strtolower($user['role_kedua'] ?? '');
+        $roles_to_check = array_filter([$role, $role_kedua]);
+        
+        if (in_array('taruna', $roles_to_check)) {
             $penugasanModel = new \App\Models\PenugasanMagangModel();
             $penugasan = $penugasanModel->where('taruna_id', $user['id'])
                                         ->where('status_aktif', true)
@@ -52,35 +57,43 @@ class DashboardController extends BaseController
             $stats['disetujui'] = $logbookModel->where('user_id', $user['id'])->where('status', 'disetujui')->countAllResults();
             $stats['pending'] = $logbookModel->where('user_id', $user['id'])->where('status', 'pending')->countAllResults();
             $stats['revisi'] = $logbookModel->where('user_id', $user['id'])->where('status', 'revisi')->countAllResults();
-        } elseif ($role == 'pembimbing') {
+        } 
+        
+        // Cek jika dia pembimbing
+        if (in_array('pembimbing', $roles_to_check)) {
             $penugasanModel = new \App\Models\PenugasanMagangModel();
-            $stats['total_taruna'] = $penugasanModel->where('pembimbing_id', $user['id'])->where('status_aktif', true)->countAllResults();
-            $stats['pending_validasi'] = $logbookModel->join('penugasan_magang pm', 'pm.id = logbooks.penugasan_id')
+            $stats_bimbingan['total_taruna'] = $penugasanModel->where('pembimbing_id', $user['id'])->where('status_aktif', true)->countAllResults();
+            $stats_bimbingan['pending_validasi'] = $logbookModel->join('penugasan_magang pm', 'pm.id = logbooks.penugasan_id')
                                                       ->where('pm.pembimbing_id', $user['id'])
                                                       ->where('logbooks.status', 'pending')
                                                       ->countAllResults();
-        } elseif (in_array($role, ['admin_prodi', 'kaprodi'])) {
-            $stats['total_taruna'] = $userModel->where('role', 'taruna')->where('prodi_id', $user['prodi_id'])->countAllResults();
-            $stats['total_pembimbing'] = $userModel->where('role', 'pembimbing')->where('prodi_id', $user['prodi_id'])->countAllResults();
-            $stats['logbook_hari_ini'] = $logbookModel->join('users', 'users.id = logbooks.user_id')
+        } 
+        
+        // Cek jika dia pejabat (monitoring)
+        if (array_intersect(['admin_prodi', 'kaprodi'], $roles_to_check)) {
+            $stats_monitoring['total_taruna'] = $userModel->where('role', 'taruna')->where('prodi_id', $user['prodi_id'])->countAllResults();
+            $stats_monitoring['total_pembimbing'] = $userModel->where('role', 'pembimbing')->where('prodi_id', $user['prodi_id'])->countAllResults();
+            $stats_monitoring['logbook_hari_ini'] = $logbookModel->join('users', 'users.id = logbooks.user_id')
                                                       ->where('users.prodi_id', $user['prodi_id'])
                                                       ->where('logbooks.tanggal', date('Y-m-d'))
                                                       ->countAllResults();
-            $stats['pending_logbook'] = $logbookModel->join('users', 'users.id = logbooks.user_id')
+            $stats_monitoring['pending_logbook'] = $logbookModel->join('users', 'users.id = logbooks.user_id')
                                                      ->where('users.prodi_id', $user['prodi_id'])
                                                      ->where('logbooks.status', 'pending')
                                                      ->countAllResults();
-        } elseif (in_array($role, ['direktur', 'wadir', 'kabag', 'superadmin'])) {
-            $stats['total_taruna'] = $userModel->where('role', 'taruna')->countAllResults();
-            $stats['total_pembimbing'] = $userModel->where('role', 'pembimbing')->countAllResults();
-            $stats['logbook_hari_ini'] = $logbookModel->where('tanggal', date('Y-m-d'))->countAllResults();
-            $stats['pending_logbook'] = $logbookModel->where('status', 'pending')->countAllResults();
+        } elseif (array_intersect(['direktur', 'wadir', 'kabag', 'superadmin'], $roles_to_check)) {
+            $stats_monitoring['total_taruna'] = $userModel->where('role', 'taruna')->countAllResults();
+            $stats_monitoring['total_pembimbing'] = $userModel->where('role', 'pembimbing')->countAllResults();
+            $stats_monitoring['logbook_hari_ini'] = $logbookModel->where('tanggal', date('Y-m-d'))->countAllResults();
+            $stats_monitoring['pending_logbook'] = $logbookModel->where('status', 'pending')->countAllResults();
         }
 
         $data = [
             'title' => 'Dashboard Utama',
             'user' => $user,
-            'stats' => $stats
+            'stats' => $stats,
+            'stats_bimbingan' => $stats_bimbingan,
+            'stats_monitoring' => $stats_monitoring
         ];
         
         return view('dashboard/index', $data);

@@ -69,6 +69,20 @@
                     <hr class="my-4 text-muted opacity-25">
                     
                     <div class="row g-4 mb-4">
+                        <div class="col-12 col-md-6" id="roleKeduaWrapper" style="display: none;">
+                            <label class="form-label-custom">Role Tambahan (Pejabat Struktural)</label>
+                            <select class="form-select form-select-custom" name="role_kedua" id="roleKeduaSelect">
+                                <option value="">-- Tidak Ada Jabatan Struktural --</option>
+                                <?php if($userRole == 'superadmin'): ?>
+                                    <option value="direktur">Direktur</option>
+                                    <option value="wadir">Wakil Direktur</option>
+                                    <option value="kaprodi">Kaprodi</option>
+                                    <option value="kabag">Kepala Bagian</option>
+                                <?php endif; ?>
+                            </select>
+                            <div class="form-text-custom">Pilih jika dosen ini juga menjabat sebagai Pejabat Struktural.</div>
+                        </div>
+
                         <div class="col-12 col-md-6" id="prodiWrapper">
                             <label class="form-label-custom">Program Studi <span class="text-danger">*</span></label>
                             <?php if($userRole == 'admin_prodi'): ?>
@@ -137,12 +151,22 @@
 
                 dynamicFields.style.display = 'block';
 
+                const roleKeduaWrapper = document.getElementById('roleKeduaWrapper');
+                
+                if (roleKeduaWrapper) roleKeduaWrapper.style.display = 'none';
+
                 if (role === 'taruna') {
                     prodiWrapper.style.display = 'block';
                     tarunaExtraWrapper.style.display = 'flex';
                     if(prodiSelect) prodiSelect.required = true;
                 } 
-                else if (role === 'pembimbing' || role === 'admin_prodi') {
+                else if (role === 'pembimbing') {
+                    prodiWrapper.style.display = 'block';
+                    tarunaExtraWrapper.style.display = 'none';
+                    if (roleKeduaWrapper) roleKeduaWrapper.style.display = 'block';
+                    if(prodiSelect) prodiSelect.required = true;
+                }
+                else if (role === 'admin_prodi') {
                     prodiWrapper.style.display = 'block';
                     tarunaExtraWrapper.style.display = 'none';
                     if(prodiSelect) prodiSelect.required = true;

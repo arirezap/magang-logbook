@@ -38,6 +38,7 @@ class AuthController extends BaseController
                     'nomor_induk'   => $user['nomor_induk'],
                     'nama'          => $user['nama'],
                     'role'          => $user['role'],
+                    'role_kedua'    => $user['role_kedua'],
                     'prodi_id'      => $user['prodi_id'],
                     'isLoggedIn'    => TRUE
                 ];

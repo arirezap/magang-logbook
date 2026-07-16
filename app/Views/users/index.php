@@ -91,12 +91,39 @@
         <div class="card-body p-0">
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0">
+                    <?php
+                        $currentSort = request()->getGet('sort') ?? 'nama';
+                        $currentOrder = strtolower(request()->getGet('order') ?? 'asc');
+                        $nextOrder = ($currentOrder == 'asc') ? 'desc' : 'asc';
+                        
+                        $buildSortUrl = function($field) use ($currentSort, $currentOrder, $nextOrder) {
+                            $params = $_GET;
+                            $params['sort'] = $field;
+                            $params['order'] = ($currentSort == $field) ? $nextOrder : 'asc';
+                            return current_url() . '?' . http_build_query($params);
+                        };
+                        
+                        $sortIcon = function($field) use ($currentSort, $currentOrder) {
+                            if ($currentSort == $field) {
+                                return $currentOrder == 'asc' ? '<i class="bi bi-sort-alpha-down"></i>' : '<i class="bi bi-sort-alpha-down-alt"></i>';
+                            }
+                            return '<i class="bi bi-arrow-down-up text-muted opacity-25"></i>';
+                        };
+                    ?>
                     <thead class="bg-light border-bottom">
                         <tr>
-                            <th class="px-4 py-3" style="font-size: 0.85rem; font-weight: 700; color: #475569; text-transform: uppercase;">Pengguna</th>
-                            <th class="py-3" style="font-size: 0.85rem; font-weight: 700; color: #475569; text-transform: uppercase;">Peran</th>
-                            <th class="py-3" style="font-size: 0.85rem; font-weight: 700; color: #475569; text-transform: uppercase;">Prodi & Kelas</th>
-                            <th class="py-3" style="font-size: 0.85rem; font-weight: 700; color: #475569; text-transform: uppercase;">Pembimbing</th>
+                            <th class="px-4 py-3" style="font-size: 0.85rem; font-weight: 700; color: #475569; text-transform: uppercase;">
+                                <a href="<?= $buildSortUrl('nama') ?>" class="text-decoration-none text-secondary d-flex align-items-center gap-2">Pengguna <?= $sortIcon('nama') ?></a>
+                            </th>
+                            <th class="py-3" style="font-size: 0.85rem; font-weight: 700; color: #475569; text-transform: uppercase;">
+                                <a href="<?= $buildSortUrl('role') ?>" class="text-decoration-none text-secondary d-flex align-items-center gap-2">Peran <?= $sortIcon('role') ?></a>
+                            </th>
+                            <th class="py-3" style="font-size: 0.85rem; font-weight: 700; color: #475569; text-transform: uppercase;">
+                                <a href="<?= $buildSortUrl('prodi') ?>" class="text-decoration-none text-secondary d-flex align-items-center gap-2">Prodi & Kelas <?= $sortIcon('prodi') ?></a>
+                            </th>
+                            <th class="py-3" style="font-size: 0.85rem; font-weight: 700; color: #475569; text-transform: uppercase;">
+                                <a href="<?= $buildSortUrl('pembimbing') ?>" class="text-decoration-none text-secondary d-flex align-items-center gap-2">Pembimbing <?= $sortIcon('pembimbing') ?></a>
+                            </th>
                             <?php if(in_array($userRole, ['superadmin', 'admin_prodi'])): ?>
                                 <th class="px-4 py-3 text-center" style="font-size: 0.85rem; font-weight: 700; color: #475569; text-transform: uppercase; width: 220px;">Aksi</th>
                             <?php endif; ?>
