@@ -1,0 +1,29 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    # Mengarahkan seluruh trafik ke folder public/
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>
+
+# Mencegah orang melihat isi direktori (Directory Listing)
+Options -Indexes
+
+# Mencegah akses langsung ke file-file sensitif
+<FilesMatch "\.(env|sql|log|zip|txt|json|lock|bak|md|sqlite|db)$">
+    <IfModule authz_core_module>
+        Require all denied
+    </IfModule>
+    <IfModule !authz_core_module>
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# Memproteksi folder inti sistem jika mod_rewrite gagal
+<DirectoryMatch "^(app|system|writable|vendor|\.git|\.agents)/">
+    <IfModule authz_core_module>
+        Require all denied
+    </IfModule>
+    <IfModule !authz_core_module>
+        Deny from all
+    </IfModule>
+</DirectoryMatch>
