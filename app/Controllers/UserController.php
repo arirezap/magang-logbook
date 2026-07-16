@@ -18,8 +18,9 @@ class UserController extends BaseController
     {
         $role = strtolower(session()->get('role'));
         
-        // Hanya Superadmin, Admin Prodi, Kaprodi, Direktur, Wadir, dan Kabag yang bisa mengakses
-        if (!in_array($role, ['superadmin', 'admin_prodi', 'kaprodi', 'direktur', 'wadir', 'kabag'])) {
+        // Hanya Superadmin dan Admin Prodi yang bisa mengakses
+        $role_kedua = strtolower(session()->get('role_kedua') ?? '');
+        if (!in_array('superadmin', [$role, $role_kedua]) && !in_array('admin_prodi', [$role, $role_kedua])) {
             return redirect()->to('/dashboard')->with('error', 'Akses ditolak.');
         }
 

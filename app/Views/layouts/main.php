@@ -97,7 +97,7 @@
  
                 <!-- Right Side Action Icons -->
                 <div class="d-flex align-items-center gap-4 mt-3 mt-lg-0 border-start border-light border-opacity-25 ps-4 ms-2">
-                    <?php if($isPejabat): ?>
+                    <?php if($isMasterDataAdmin): ?>
                     <a href="<?= base_url('/users') ?>" class="text-white text-decoration-none fs-5 opacity-75 <?= ($current_route == 'users') ? 'opacity-100' : '' ?>" title="Pengaturan" style="transition: all 0.2s; outline: none;" onmouseover="this.classList.replace('opacity-75', 'opacity-100')" onmouseout="this.classList.replace('opacity-100', 'opacity-75')">
                         <i class="bi bi-gear-fill"></i>
                     </a>
