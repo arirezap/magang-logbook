@@ -326,12 +326,29 @@ class PenugasanController extends BaseController
                 }
 
                 // Buat akun baru
+                // Tentukan jenjang berdasarkan prodi_id
+                $jenjang = 'D4'; // default fallback
+                if (!empty($prodi_id)) {
+                    foreach ($allProdi as $pd) {
+                        if ($pd['id'] == $prodi_id) {
+                            $pdNameLower = strtolower($pd['nama_prodi']);
+                            if (strpos($pdNameLower, 'rekayasa') !== false || strpos($pdNameLower, 'rstj') !== false || strpos($pdNameLower, 'tro') !== false) {
+                                $jenjang = 'D4';
+                            } elseif (strpos($pdNameLower, 'otomotif') !== false || strpos($pdNameLower, 'to') !== false) {
+                                $jenjang = 'D3';
+                            }
+                            break;
+                        }
+                    }
+                }
+
                 $this->userModel->insert([
                     'nomor_induk' => $notar,
                     'nama' => $nama,
                     'password' => password_hash($notar, PASSWORD_DEFAULT),
                     'role' => 'taruna',
                     'prodi_id' => $prodi_id,
+                    'jenjang' => $jenjang,
                     'kelas' => $kelas
                 ]);
                 $taruna_id = $this->userModel->getInsertID();
