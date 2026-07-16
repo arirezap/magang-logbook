@@ -154,15 +154,23 @@
                                     </div>
                                 </td>
                                 <td class="py-3">
-                                    <?php if(strtolower($user['role']) == 'taruna'): ?>
-                                        <span class="badge-taruna text-nowrap">Taruna</span>
-                                    <?php elseif(strtolower($user['role']) == 'pembimbing'): ?>
-                                        <span class="badge-pembimbing text-nowrap">Dosen Pembimbing</span>
-                                    <?php else: ?>
-                                        <span class="badge bg-secondary-subtle text-secondary-emphasis rounded-3 px-3 py-2 text-nowrap" style="font-size: 0.82rem; font-weight: 600;">
-                                            <?= esc(ucwords(str_replace('_', ' ', $user['role']))) ?>
-                                        </span>
-                                    <?php endif; ?>
+                                    <div class="d-flex flex-column gap-1 align-items-start">
+                                        <?php if(strtolower($user['role']) == 'taruna'): ?>
+                                            <span class="badge-taruna text-nowrap">Taruna</span>
+                                        <?php elseif(strtolower($user['role']) == 'pembimbing'): ?>
+                                            <span class="badge-pembimbing text-nowrap">Dosen Pembimbing</span>
+                                        <?php else: ?>
+                                            <span class="badge bg-secondary-subtle text-secondary-emphasis rounded-3 px-3 py-2 text-nowrap" style="font-size: 0.82rem; font-weight: 600;">
+                                                <?= esc(ucwords(str_replace('_', ' ', $user['role']))) ?>
+                                            </span>
+                                        <?php endif; ?>
+                                        
+                                        <?php if(!empty($user['role_kedua'])): ?>
+                                            <span class="badge bg-primary-subtle text-primary-emphasis rounded-3 px-3 py-1 text-nowrap" style="font-size: 0.75rem; font-weight: 600; border: 1px solid rgba(13, 110, 253, 0.1);">
+                                                <i class="bi bi-briefcase me-1"></i><?= esc(ucwords(str_replace('_', ' ', $user['role_kedua']))) ?>
+                                            </span>
+                                        <?php endif; ?>
+                                    </div>
                                 </td>
                                 <td class="py-3">
                                     <div class="text-secondary" style="font-size: 0.9rem;"><?= esc($user['nama_prodi']) ?></div>

@@ -136,7 +136,7 @@ class UserController extends BaseController
     public function edit($id)
     {
         $role = strtolower(session()->get('role'));
-        if (!in_array($role, ['superadmin', 'admin_prodi', 'kaprodi'])) {
+        if (!in_array($role, ['superadmin', 'admin_prodi'])) {
             return redirect()->to('/users')->with('error', 'Akses ditolak.');
         }
 
@@ -145,15 +145,15 @@ class UserController extends BaseController
             return redirect()->to('/users')->with('error', 'Data tidak ditemukan.');
         }
 
-        // Keamanan Admin Prodi / Kaprodi: Hanya bisa edit orang dari prodi yang sama
-        if (in_array($role, ['admin_prodi', 'kaprodi']) && $userEdit['prodi_id'] != session()->get('prodi_id')) {
+        // Keamanan Admin Prodi: Hanya bisa edit orang dari prodi yang sama
+        if (in_array($role, ['admin_prodi']) && $userEdit['prodi_id'] != session()->get('prodi_id')) {
             return redirect()->to('/users')->with('error', 'Data tidak berada di wewenang Anda.');
         }
 
         $prodiModel = new \App\Models\ProdiModel();
         $prodiList = $prodiModel->getOrderedProdi();
         
-        if (in_array($role, ['admin_prodi', 'kaprodi'])) {
+        if (in_array($role, ['admin_prodi'])) {
             $pembimbingList = $this->userModel->where('role', 'pembimbing')->where('prodi_id', session()->get('prodi_id'))->findAll();
         } else {
             $pembimbingList = $this->userModel->where('role', 'pembimbing')->findAll();
@@ -173,12 +173,12 @@ class UserController extends BaseController
     public function update($id)
     {
         $role = strtolower(session()->get('role'));
-        if (!in_array($role, ['superadmin', 'admin_prodi', 'kaprodi'])) {
+        if (!in_array($role, ['superadmin', 'admin_prodi'])) {
             return redirect()->to('/users');
         }
 
         $userEdit = $this->userModel->find($id);
-        if (!$userEdit || (in_array($role, ['admin_prodi', 'kaprodi']) && $userEdit['prodi_id'] != session()->get('prodi_id'))) {
+        if (!$userEdit || (in_array($role, ['admin_prodi']) && $userEdit['prodi_id'] != session()->get('prodi_id'))) {
             return redirect()->to('/users')->with('error', 'Data tidak valid.');
         }
 
@@ -214,10 +214,10 @@ class UserController extends BaseController
             $userData['jenjang']       = $this->request->getPost('jenjang');
             $userData['kelas']         = $this->request->getPost('kelas');
             
-            $userData['prodi_id'] = (in_array($role, ['admin_prodi', 'kaprodi'])) ? session()->get('prodi_id') : $this->request->getPost('prodi_id');
+            $userData['prodi_id'] = (in_array($role, ['admin_prodi'])) ? session()->get('prodi_id') : $this->request->getPost('prodi_id');
         } 
         elseif (in_array($targetRole, ['pembimbing', 'admin_prodi', 'kaprodi'])) {
-            $userData['prodi_id'] = (in_array($role, ['admin_prodi', 'kaprodi'])) ? session()->get('prodi_id') : $this->request->getPost('prodi_id');
+            $userData['prodi_id'] = (in_array($role, ['admin_prodi'])) ? session()->get('prodi_id') : $this->request->getPost('prodi_id');
             // Bersihkan field lain jika beralih role
             $userData['jenjang'] = null;
             $userData['kelas'] = null;
@@ -237,7 +237,7 @@ class UserController extends BaseController
     public function delete($id)
     {
         $role = strtolower(session()->get('role'));
-        if (!in_array($role, ['superadmin', 'admin_prodi', 'kaprodi'])) {
+        if (!in_array($role, ['superadmin', 'admin_prodi'])) {
             return redirect()->to('/users')->with('error', 'Akses ditolak.');
         }
 

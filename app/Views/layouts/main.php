@@ -50,6 +50,7 @@
                         $sessRole2 = strtolower(session()->get('role_kedua') ?? '');
                         $isPejabat = in_array($sessRole, ['admin_prodi', 'kaprodi', 'direktur', 'wadir', 'kabag', 'superadmin']) || in_array($sessRole2, ['admin_prodi', 'kaprodi', 'direktur', 'wadir', 'kabag', 'superadmin']);
                         $isPembimbing = ($sessRole == 'pembimbing' || $sessRole2 == 'pembimbing');
+                        $isMasterDataAdmin = in_array($sessRole, ['admin_prodi', 'superadmin']) || in_array($sessRole2, ['admin_prodi', 'superadmin']);
                     ?>
                     <?php if($isPejabat): ?>
                     <li class="nav-item">
@@ -81,7 +82,7 @@
                     </li>
                     <?php endif; ?>
  
-                    <?php if($isPejabat): ?>
+                    <?php if($isMasterDataAdmin): ?>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle <?= ($current_route == 'input-data-taruna' || $current_route == 'input-data-dosen') ? 'active' : '' ?>" href="#" id="masterDataDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             Master Data

@@ -23,7 +23,8 @@ class PenugasanController extends BaseController
     {
         // Khusus admin prodi atau superadmin (pejabat)
         $role = session()->get('role');
-        if (!in_array($role, ['admin_prodi', 'kaprodi', 'direktur', 'wadir', 'kabag', 'superadmin'])) {
+        $role_kedua = session()->get('role_kedua') ?? '';
+        if (!in_array('admin_prodi', [$role, $role_kedua]) && !in_array('superadmin', [$role, $role_kedua])) {
             return redirect()->to('/dashboard')->with('error', 'Akses ditolak.');
         }
 
@@ -123,7 +124,8 @@ class PenugasanController extends BaseController
     public function store()
     {
         $role = session()->get('role');
-        if (!in_array($role, ['admin_prodi', 'kaprodi', 'direktur', 'wadir', 'kabag', 'superadmin'])) {
+        $role_kedua = session()->get('role_kedua') ?? '';
+        if (!in_array('admin_prodi', [$role, $role_kedua]) && !in_array('superadmin', [$role, $role_kedua])) {
             return redirect()->to('/dashboard')->with('error', 'Akses ditolak.');
         }
 
@@ -184,7 +186,8 @@ class PenugasanController extends BaseController
     public function update($id)
     {
         $role = session()->get('role');
-        if (!in_array($role, ['admin_prodi', 'kaprodi', 'direktur', 'wadir', 'kabag', 'superadmin'])) {
+        $role_kedua = session()->get('role_kedua') ?? '';
+        if (!in_array('admin_prodi', [$role, $role_kedua]) && !in_array('superadmin', [$role, $role_kedua])) {
             return redirect()->to('/dashboard')->with('error', 'Akses ditolak.');
         }
 
@@ -241,7 +244,8 @@ class PenugasanController extends BaseController
     public function importExcel()
     {
         $role = session()->get('role');
-        if (!in_array($role, ['admin_prodi', 'kaprodi', 'direktur', 'wadir', 'kabag', 'superadmin'])) {
+        $role_kedua = session()->get('role_kedua') ?? '';
+        if (!in_array('admin_prodi', [$role, $role_kedua]) && !in_array('superadmin', [$role, $role_kedua])) {
             return redirect()->to('/dashboard')->with('error', 'Akses ditolak.');
         }
 
@@ -429,7 +433,8 @@ class PenugasanController extends BaseController
     public function batchMigrate()
     {
         $role = session()->get('role');
-        if (!in_array($role, ['admin_prodi', 'kaprodi', 'direktur', 'wadir', 'kabag', 'superadmin'])) {
+        $role_kedua = session()->get('role_kedua') ?? '';
+        if (!in_array('admin_prodi', [$role, $role_kedua]) && !in_array('superadmin', [$role, $role_kedua])) {
             return redirect()->to('/dashboard')->with('error', 'Akses ditolak.');
         }
 
