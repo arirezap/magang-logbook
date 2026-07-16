@@ -259,4 +259,41 @@ class UserController extends BaseController
         $this->userModel->delete($id);
         return redirect()->to('/users')->with('success', 'Pengguna berhasil dihapus.');
     }
+
+    public function batchDelete()
+    {
+        $role = strtolower(session()->get('role'));
+        if (!in_array($role, ['superadmin', 'admin_prodi'])) {
+            return redirect()->to('/users')->with('error', 'Akses ditolak.');
+        }
+
+        $user_ids = $this->request->getPost('user_ids');
+        if (empty($user_ids) || !is_array($user_ids)) {
+            return redirect()->to('/users')->with('error', 'Tidak ada pengguna yang dipilih untuk dihapus.');
+        }
+
+        $db = \Config\Database::connect();
+        $db->transStart();
+
+        $count = 0;
+        foreach ($user_ids as $id) {
+            $user = $this->userModel->find($id);
+            if (!$user || strtolower($user['role']) == 'superadmin') {
+                continue; // Jangan hapus superadmin atau user yang tidak valid
+            }
+            if ($role == 'admin_prodi' && $user['prodi_id'] != session()->get('prodi_id')) {
+                continue; // Admin prodi tidak bisa hapus user prodi lain
+            }
+            $this->userModel->delete($id);
+            $count++;
+        }
+
+        $db->transComplete();
+
+        if ($db->transStatus() === false) {
+            return redirect()->to('/users')->with('error', 'Terjadi kesalahan sistem saat menghapus data.');
+        }
+
+        return redirect()->to('/users')->with('success', "Berhasil menghapus {$count} pengguna secara massal.");
+    }
 }

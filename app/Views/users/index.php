@@ -88,6 +88,7 @@
 
     <!-- User Table Card -->
     <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <form action="<?= base_url('/users/batchDelete') ?>" method="POST" id="batchDeleteForm">
         <div class="card-body p-0">
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0">
@@ -112,7 +113,12 @@
                     ?>
                     <thead class="bg-light border-bottom">
                         <tr>
-                            <th class="px-4 py-3" style="font-size: 0.85rem; font-weight: 700; color: #475569; text-transform: uppercase;">
+                            <?php if(in_array($userRole, ['superadmin', 'admin_prodi'])): ?>
+                                <th class="px-4 py-3" style="width: 50px;">
+                                    <input class="form-check-input" type="checkbox" id="selectAll" title="Pilih Semua">
+                                </th>
+                            <?php endif; ?>
+                            <th class="<?= in_array($userRole, ['superadmin', 'admin_prodi']) ? '' : 'px-4 ' ?>py-3" style="font-size: 0.85rem; font-weight: 700; color: #475569; text-transform: uppercase;">
                                 <a href="<?= $buildSortUrl('nama') ?>" class="text-decoration-none text-secondary d-flex align-items-center gap-2">Pengguna <?= $sortIcon('nama') ?></a>
                             </th>
                             <th class="py-3" style="font-size: 0.85rem; font-weight: 700; color: #475569; text-transform: uppercase;">
@@ -140,7 +146,16 @@
                         <?php else: ?>
                             <?php foreach($users as $user): ?>
                             <tr>
-                                <td class="px-4 py-3">
+                                <?php if(in_array($userRole, ['superadmin', 'admin_prodi'])): ?>
+                                    <td class="px-4 py-3">
+                                        <?php if(strtolower($user['role']) !== 'superadmin'): ?>
+                                            <input class="form-check-input user-checkbox" type="checkbox" name="user_ids[]" value="<?= $user['id'] ?>">
+                                        <?php else: ?>
+                                            <input class="form-check-input" type="checkbox" disabled title="Superadmin tidak dapat dihapus">
+                                        <?php endif; ?>
+                                    </td>
+                                <?php endif; ?>
+                                <td class="<?= in_array($userRole, ['superadmin', 'admin_prodi']) ? '' : 'px-4 ' ?>py-3">
                                     <div class="d-flex align-items-center gap-3">
                                         <!-- Initial Circle -->
                                         <div class="rounded-circle bg-light d-flex align-items-center justify-content-center fw-bold text-primary shadow-sm" 
@@ -207,11 +222,51 @@
                     </tbody>
                 </table>
             </div>
+
+            <?php if(in_array($userRole, ['superadmin', 'admin_prodi'])): ?>
+            <div class="px-4 py-3 border-top bg-light d-flex justify-content-between align-items-center">
+                <span class="text-muted small" id="selectedCount">0 baris terpilih</span>
+                <button type="submit" class="btn btn-danger btn-sm rounded-pill px-4 fw-semibold shadow-sm" id="btnBatchDelete" disabled onclick="return confirm('Apakah Anda yakin ingin menghapus pengguna yang dipilih? Data logbook terkait juga akan terhapus.');">
+                    <i class="bi bi-trash-fill me-1"></i> Hapus Terpilih
+                </button>
+            </div>
+            <?php endif; ?>
         </div>
-        
-        <!-- Pagination Links -->
-        <div class="mt-4 mb-3 d-flex justify-content-center">
-            <?= $pager->links('users', 'custom_pagination') ?>
-        </div>
+        </form>
     </div>
+    
+    <!-- Pagination Links -->
+    <div class="mt-4 mb-3 d-flex justify-content-center">
+        <?= $pager->links('users', 'custom_pagination') ?>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const selectAll = document.getElementById('selectAll');
+    const checkboxes = document.querySelectorAll('.user-checkbox');
+    const btnBatchDelete = document.getElementById('btnBatchDelete');
+    const selectedCount = document.getElementById('selectedCount');
+    
+    if (selectAll) {
+        function updateStatus() {
+            const checkedCount = document.querySelectorAll('.user-checkbox:checked').length;
+            if (btnBatchDelete) btnBatchDelete.disabled = checkedCount === 0;
+            if (selectedCount) selectedCount.textContent = checkedCount + ' baris terpilih';
+            selectAll.checked = checkedCount > 0 && checkedCount === checkboxes.length;
+        }
+
+        selectAll.addEventListener('change', function() {
+            checkboxes.forEach(cb => {
+                if (!cb.disabled) cb.checked = selectAll.checked;
+            });
+            updateStatus();
+        });
+
+        checkboxes.forEach(cb => {
+            cb.addEventListener('change', updateStatus);
+        });
+    }
+});
+</script>
 <?= $this->endSection() ?>
