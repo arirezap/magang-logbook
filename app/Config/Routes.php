@@ -25,6 +25,7 @@ $routes->group('', ['filter' => 'auth'], static function ($routes) {
     
     // Rute Daftar Taruna Bimbingan (Pembimbing)
     $routes->get('/bimbingan', 'BimbinganController::index');
+    $routes->get('/bimbingan/loadData', 'BimbinganController::loadData');
 
     // Rute Data Pengguna (Admin Prodi, Pejabat & Superadmin)
     $routes->get('/users', 'UserController::index');
