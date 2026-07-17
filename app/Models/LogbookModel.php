@@ -39,7 +39,13 @@ class LogbookModel extends Model
                     ->where('pm.pembimbing_id', $pembimbing_id);
                     
         if (!empty($filterTanggal)) {
-            $separator = strpos($filterTanggal, ' - ') !== false ? ' - ' : ' to ';
+            $separator = ' to ';
+            if (strpos($filterTanggal, ' - ') !== false) {
+                $separator = ' - ';
+            } elseif (strpos($filterTanggal, ' sampai ') !== false) {
+                $separator = ' sampai ';
+            }
+            
             $dates = explode($separator, $filterTanggal);
             $start_date = trim($dates[0]);
             $end_date = isset($dates[1]) ? trim($dates[1]) : $start_date;
@@ -59,7 +65,8 @@ class LogbookModel extends Model
             $builder->where('logbooks.status', $filterStatus);
         }
 
-        return $builder->orderBy('logbooks.created_at', 'DESC')->paginate($perPage, 'logbooks');
+        $builder->orderBy("FIELD(logbooks.status, 'pending', 'revisi', 'ditolak', 'disetujui')", 'ASC', false);
+        return $builder->orderBy('logbooks.tanggal', 'DESC')->paginate($perPage, 'logbooks');
     }
 
 
@@ -81,7 +88,13 @@ class LogbookModel extends Model
         }
 
         if (!empty($filterTanggal)) {
-            $separator = strpos($filterTanggal, ' - ') !== false ? ' - ' : ' to ';
+            $separator = ' to ';
+            if (strpos($filterTanggal, ' - ') !== false) {
+                $separator = ' - ';
+            } elseif (strpos($filterTanggal, ' sampai ') !== false) {
+                $separator = ' sampai ';
+            }
+            
             $dates = explode($separator, $filterTanggal);
             $start_date = trim($dates[0]);
             $end_date = isset($dates[1]) ? trim($dates[1]) : $start_date;

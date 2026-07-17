@@ -121,10 +121,15 @@ _modules/*
 
 # Visual Studio Code
 .vscode/
-
 /results/
 /phpunit.xml
 
 *.sql
 output.txt
 vendor.zip
+
+#-------------------------
+# Local Uploads
+#-------------------------
+/public/uploads/*
+!/public/uploads/index.html

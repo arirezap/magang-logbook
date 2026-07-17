@@ -43,7 +43,7 @@
         <div class="col-12 col-lg-8">
             <div class="card border-0 shadow-sm rounded-4">
                 <div class="card-body p-4 p-md-5">
-                    <form action="<?= base_url('/logbook/update/' . $logbook['id']) . ($qs ? '?'.$qs : '') ?>" method="POST">
+                    <form action="<?= base_url('/logbook/update/' . $logbook['id']) . ($qs ? '?'.$qs : '') ?>" method="POST" enctype="multipart/form-data">
                         <?= csrf_field() ?>
                         
                         <!-- Tanggal Kegiatan -->
@@ -58,12 +58,24 @@
                             <textarea class="form-control form-control-custom" id="kegiatan" name="kegiatan" rows="6" placeholder="Ceritakan kegiatan magang Anda hari ini..." required><?= old('kegiatan') ?? esc($logbook['kegiatan']) ?></textarea>
                         </div>
 
-                        <!-- Link Dokumentasi -->
+                        <!-- Upload Dokumentasi -->
                         <div class="mb-5">
-                            <label for="dokumentasi" class="form-label-custom">Link Dokumentasi (Google Drive) <span class="text-danger">*</span></label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-light text-muted border-end-0" style="border: 1.5px solid #e2e8f0; border-radius: 10px 0 0 10px;"><i class="bi bi-google-drive"></i></span>
-                                <input type="url" class="form-control form-control-custom border-start-0 ps-2" id="dokumentasi" name="dokumentasi" placeholder="https://drive.google.com/..." value="<?= old('dokumentasi') ?? esc($logbook['dokumentasi']) ?>" required style="border-radius: 0 10px 10px 0 !important;">
+                            <label for="dokumentasi" class="form-label-custom">Upload Bukti Dokumentasi <span class="text-danger">*</span></label>
+                            
+                            <!-- Tampilkan file saat ini -->
+                            <div class="mb-3 p-3 bg-light border rounded-3">
+                                <div class="text-muted small fw-bold mb-1">Bukti Saat Ini:</div>
+                                <?php if(strpos($logbook['dokumentasi'], 'http') === 0): ?>
+                                    <a href="<?= esc($logbook['dokumentasi']) ?>" target="_blank" class="btn btn-sm btn-outline-primary rounded-pill"><i class="bi bi-google-drive me-1"></i> Buka Link G-Drive</a>
+                                <?php else: ?>
+                                    <a href="<?= base_url('uploads/logbook/' . esc($logbook['dokumentasi'])) ?>" target="_blank" class="btn btn-sm btn-outline-primary rounded-pill"><i class="bi bi-file-earmark-check me-1"></i> Lihat File Tersimpan</a>
+                                <?php endif; ?>
+                            </div>
+
+                            <input type="file" class="form-control form-control-custom" id="dokumentasi" name="dokumentasi" accept=".jpg,.jpeg,.png,.pdf">
+                            <div class="form-text-custom text-primary d-flex align-items-start gap-2 mt-2">
+                                <i class="bi bi-info-circle-fill flex-shrink-0 mt-0.5"></i>
+                                <span>Format: <strong>JPG, JPEG, PNG, PDF</strong>. Maks: <strong>5MB</strong>. Biarkan kosong jika tidak ingin mengubah bukti yang sudah ada.</span>
                             </div>
                         </div>
 

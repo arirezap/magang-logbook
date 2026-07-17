@@ -162,10 +162,16 @@
                                 <div>
                                     <div class="logbook-date mb-1"><?= esc($log['kegiatan']) ?></div>
                                     <?php if(!empty($log['dokumentasi'])): ?>
-                                        <div class="logbook-time">
-                                            <a href="<?= esc($log['dokumentasi']) ?>" target="_blank" class="text-decoration-none text-primary">
-                                                <i class="bi bi-link-45deg me-1"></i> Lihat Dokumentasi
-                                            </a>
+                                        <div class="logbook-time mt-2">
+                                            <?php if(strpos($log['dokumentasi'], 'http') === 0): ?>
+                                                <a href="<?= esc($log['dokumentasi']) ?>" target="_blank" class="btn btn-sm btn-outline-primary rounded-pill fw-semibold">
+                                                    <i class="bi bi-google-drive me-1"></i> Buka Link G-Drive
+                                                </a>
+                                            <?php else: ?>
+                                                <a href="<?= base_url('uploads/logbook/' . esc($log['dokumentasi'])) ?>" target="_blank" class="btn btn-sm btn-outline-primary rounded-pill fw-semibold">
+                                                    <i class="bi bi-file-earmark-check me-1"></i> Lihat File Bukti
+                                                </a>
+                                            <?php endif; ?>
                                         </div>
                                     <?php endif; ?>
                                 </div>

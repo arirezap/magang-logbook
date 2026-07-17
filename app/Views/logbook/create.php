@@ -31,7 +31,7 @@
         <div class="col-12 col-lg-8">
             <div class="card border-0 shadow-sm rounded-4">
                 <div class="card-body p-4 p-md-5">
-                    <form action="<?= base_url('/logbook/store') ?>" method="POST">
+                    <form action="<?= base_url('/logbook/store') ?>" method="POST" enctype="multipart/form-data">
                         <?= csrf_field() ?>
                         
                         <!-- Tanggal Kegiatan -->
@@ -47,16 +47,13 @@
                             <div class="form-text-custom">Ceritakan kegiatan magang Anda hari ini secara detail dan terstruktur (minimal 10 karakter).</div>
                         </div>
 
-                        <!-- Link Dokumentasi -->
+                        <!-- Upload Dokumentasi -->
                         <div class="mb-5">
-                            <label for="dokumentasi" class="form-label-custom">Link Dokumentasi (Google Drive) <span class="text-danger">*</span></label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-light text-muted border-end-0" style="border: 1.5px solid #e2e8f0; border-radius: 10px 0 0 10px;"><i class="bi bi-google-drive"></i></span>
-                                <input type="url" class="form-control form-control-custom border-start-0 ps-2" id="dokumentasi" name="dokumentasi" placeholder="https://drive.google.com/..." value="<?= esc(old('dokumentasi')) ?>" required style="border-radius: 0 10px 10px 0 !important;">
-                            </div>
+                            <label for="dokumentasi" class="form-label-custom">Upload Bukti Dokumentasi <span class="text-danger">*</span></label>
+                            <input type="file" class="form-control form-control-custom" id="dokumentasi" name="dokumentasi" accept=".jpg,.jpeg,.png,.pdf" required>
                             <div class="form-text-custom text-primary d-flex align-items-start gap-2 mt-2">
                                 <i class="bi bi-info-circle-fill flex-shrink-0 mt-0.5"></i>
-                                <span>Pastikan tautan Google Drive disetel ke <strong>&quot;Siapa saja yang memiliki link (Anyone with the link)&quot;</strong> agar dosen pembimbing dapat memverifikasi.</span>
+                                <span>Format yang diizinkan: <strong>JPG, JPEG, PNG, PDF</strong>. Ukuran maksimal: <strong>5MB</strong>.</span>
                             </div>
                         </div>
 

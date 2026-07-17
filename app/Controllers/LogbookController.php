@@ -93,17 +93,17 @@ class LogbookController extends BaseController
             return redirect()->to('/dashboard');
         }
 
-        // Validasi input
-        // 'valid_url_strict' memastikan input benar-benar format URL
         $rules = [
             'tanggal'     => 'required|valid_date',
             'kegiatan'    => 'required|min_length[10]',
-            'dokumentasi' => 'required|valid_url_strict'
+            'dokumentasi' => 'uploaded[dokumentasi]|max_size[dokumentasi,5120]|ext_in[dokumentasi,jpg,jpeg,png,pdf]'
         ];
 
         $messages = [
             'dokumentasi' => [
-                'valid_url_strict' => 'Bukti dokumentasi harus berupa link URL Google Drive yang valid (awali dengan http/https).'
+                'uploaded' => 'File bukti dokumentasi wajib diunggah.',
+                'max_size' => 'Ukuran file tidak boleh lebih dari 5MB.',
+                'ext_in'   => 'Format file harus berupa JPG, JPEG, PNG, atau PDF.'
             ]
         ];
 
@@ -130,6 +130,20 @@ class LogbookController extends BaseController
         $penugasanModel = new PenugasanMagangModel();
         $penugasan = $penugasanModel->getActivePenugasan(session()->get('id'));
 
+        // Handle upload file
+        $file = $this->request->getFile('dokumentasi');
+        $fileName = '';
+        if ($file && $file->isValid() && !$file->hasMoved()) {
+            $uploadPath = FCPATH . 'uploads/logbook';
+            if (!is_dir($uploadPath)) {
+                mkdir($uploadPath, 0777, true);
+            }
+            $fileName = $file->getRandomName();
+            $file->move($uploadPath, $fileName);
+        } else {
+            return redirect()->back()->withInput()->with('error', 'Gagal mengunggah file bukti dokumentasi.');
+        }
+
         try {
             // Simpan data
             $this->logbookModel->save([
@@ -137,7 +151,7 @@ class LogbookController extends BaseController
                 'penugasan_id'=> $penugasan ? $penugasan['id'] : null,
                 'tanggal'     => $this->request->getPost('tanggal'),
                 'kegiatan'    => $this->request->getPost('kegiatan'),
-                'dokumentasi' => $this->request->getPost('dokumentasi'),
+                'dokumentasi' => $fileName,
                 'status'      => 'pending' // Default status menunggu validasi
             ]);
 
@@ -188,12 +202,19 @@ class LogbookController extends BaseController
         $rules = [
             'tanggal'     => 'required|valid_date',
             'kegiatan'    => 'required|min_length[10]',
-            'dokumentasi' => 'required|valid_url_strict'
         ];
+
+        $file = $this->request->getFile('dokumentasi');
+        $isFileUploaded = $file && $file->isValid() && !$file->hasMoved();
+        
+        if ($isFileUploaded) {
+            $rules['dokumentasi'] = 'max_size[dokumentasi,5120]|ext_in[dokumentasi,jpg,jpeg,png,pdf]';
+        }
 
         $messages = [
             'dokumentasi' => [
-                'valid_url_strict' => 'Bukti dokumentasi harus berupa link URL Google Drive yang valid.'
+                'max_size' => 'Ukuran file tidak boleh lebih dari 5MB.',
+                'ext_in'   => 'Format file harus berupa JPG, JPEG, PNG, atau PDF.'
             ]
         ];
 
@@ -222,10 +243,29 @@ class LogbookController extends BaseController
         if (in_array($logbook['status'], ['revisi', 'ditolak'])) {
             $inputTanggal = $this->request->getPost('tanggal');
             $inputKegiatan = $this->request->getPost('kegiatan');
-            $inputDokumentasi = $this->request->getPost('dokumentasi');
 
-            if ($logbook['tanggal'] == $inputTanggal && $logbook['kegiatan'] == $inputKegiatan && $logbook['dokumentasi'] == $inputDokumentasi) {
-                return redirect()->back()->withInput()->with('error', 'Anda harus memperbaiki atau melakukan perubahan pada laporan sebelum mengirim ulang!');
+            if (!$isFileUploaded && $logbook['tanggal'] == $inputTanggal && $logbook['kegiatan'] == $inputKegiatan) {
+                return redirect()->back()->withInput()->with('error', 'Anda harus memperbaiki atau melakukan perubahan pada laporan (atau unggah bukti baru) sebelum mengirim ulang!');
+            }
+        }
+
+        // Handle file upload if new file is provided
+        $fileName = $logbook['dokumentasi'];
+        if ($isFileUploaded) {
+            $uploadPath = FCPATH . 'uploads/logbook';
+            if (!is_dir($uploadPath)) {
+                mkdir($uploadPath, 0777, true);
+            }
+            $newName = $file->getRandomName();
+            $file->move($uploadPath, $newName);
+            $fileName = $newName;
+            
+            // Delete old file if it's not a URL
+            if (!empty($logbook['dokumentasi']) && strpos($logbook['dokumentasi'], 'http') !== 0) {
+                $oldFilePath = $uploadPath . '/' . $logbook['dokumentasi'];
+                if (file_exists($oldFilePath)) {
+                    unlink($oldFilePath);
+                }
             }
         }
 
@@ -233,7 +273,7 @@ class LogbookController extends BaseController
             $this->logbookModel->update($id, [
                 'tanggal'     => $this->request->getPost('tanggal'),
                 'kegiatan'    => $this->request->getPost('kegiatan'),
-                'dokumentasi' => $this->request->getPost('dokumentasi'),
+                'dokumentasi' => $fileName,
                 'status'      => 'pending' // Reset status ke pending
             ]);
 

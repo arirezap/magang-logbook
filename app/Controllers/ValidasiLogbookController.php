@@ -31,20 +31,44 @@ class ValidasiLogbookController extends BaseController
         $filterStatus = $this->request->getGet('status');
         $perPage      = $this->request->getGet('per_page') ?? 10;
 
-        $logbooks = $this->logbookModel->getLogbooksForPembimbing($pembimbing_id, $filterTanggal, $filterNama, $filterStatus, $perPage);
-        $pager    = $this->logbookModel->pager;
-
         $data = [
             'title'        => 'Validasi Logbook Taruna',
-            'logbooks'     => $logbooks,
             'filterTanggal'=> $filterTanggal,
             'filterNama'   => $filterNama,
             'filterStatus' => $filterStatus,
             'perPage'      => $perPage,
-            'pager'        => $pager,
         ];
 
         return view('validasi/index', $data);
+    }
+
+    public function loadData()
+    {
+        $role = strtolower(session()->get('role'));
+        $role_kedua = strtolower(session()->get('role_kedua') ?? '');
+        
+        if ($role != 'pembimbing' && $role_kedua != 'pembimbing') {
+            return $this->response->setJSON(['error' => 'Akses ditolak']);
+        }
+
+        $pembimbing_id = session()->get('id');
+
+        $filterTanggal = $this->request->getGet('tanggal');
+        $filterNama   = $this->request->getGet('nama');
+        $filterStatus = $this->request->getGet('status');
+        $perPage      = 20;
+        $page         = $this->request->getGet('page') ?? 1;
+
+        // CodeIgniter 4 paginate automatically uses 'page' query param
+        $logbooks = $this->logbookModel->getLogbooksForPembimbing($pembimbing_id, $filterTanggal, $filterNama, $filterStatus, $perPage);
+        $pager = $this->logbookModel->pager;
+
+        $hasMore = $pager->getCurrentPage('logbooks') < $pager->getPageCount('logbooks');
+
+        return $this->response->setJSON([
+            'data' => $logbooks,
+            'hasMore' => $hasMore
+        ]);
     }
 
     public function updateStatus($id)
@@ -75,6 +99,9 @@ class ValidasiLogbookController extends BaseController
 
         // Validasi array status agar aman
         if (!in_array($status, ['disetujui', 'revisi', 'ditolak'])) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['success' => false, 'message' => 'Status validasi tidak sah.']);
+            }
             return redirect()->back()->with('error', 'Status validasi tidak sah.');
         }
 
@@ -83,6 +110,10 @@ class ValidasiLogbookController extends BaseController
             'status'             => $status,
             'catatan_pembimbing' => $catatan
         ]);
+
+        if ($this->request->isAJAX()) {
+            return $this->response->setJSON(['success' => true, 'message' => 'Validasi berhasil disimpan.']);
+        }
 
         return redirect()->to('/validasi')->with('success', 'Validasi berhasil disimpan!');
     }

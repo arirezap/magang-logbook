@@ -21,6 +21,7 @@ $routes->group('', ['filter' => 'auth'], static function ($routes) {
 
     // Rute Validasi Logbook (Pembimbing)
     $routes->get('/validasi', 'ValidasiLogbookController::index');
+    $routes->get('/validasi/loadData', 'ValidasiLogbookController::loadData');
     $routes->post('/validasi/update/(:num)', 'ValidasiLogbookController::updateStatus/$1');
     
     // Rute Daftar Taruna Bimbingan (Pembimbing)
