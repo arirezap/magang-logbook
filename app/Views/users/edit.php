@@ -96,6 +96,20 @@
                                     <?php endforeach; ?>
                                 </select>
                             <?php endif; ?>
+                            
+                            <?php if(strtolower($userEdit['role']) == 'pembimbing'): ?>
+                                <?php
+                                    $db = \Config\Database::connect();
+                                    $query = $db->query("SELECT GROUP_CONCAT(DISTINCT p.nama_prodi SEPARATOR ', ') as tambahan FROM penugasan_magang pm JOIN users u ON u.id = pm.taruna_id JOIN prodi p ON p.id = u.prodi_id WHERE pm.pembimbing_id = ? AND u.prodi_id != ?", [$userEdit['id'], $userEdit['prodi_id']]);
+                                    $tambahan = $query->getRow()->tambahan ?? '';
+                                ?>
+                                <?php if(!empty($tambahan)): ?>
+                                    <div class="form-text-custom text-info mt-2 border-start border-info border-3 ps-2">
+                                        <i class="bi bi-info-circle-fill me-1"></i> 
+                                        Dosen ini juga membimbing taruna di prodi: <strong><?= esc($tambahan) ?></strong>.
+                                    </div>
+                                <?php endif; ?>
+                            <?php endif; ?>
                         </div>
                         
                         <!-- Pembimbing ID dihilangkan dari tabel users -->

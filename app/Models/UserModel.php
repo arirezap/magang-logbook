@@ -33,7 +33,13 @@ class UserModel extends Model
     // Mengambil data pengguna beserta nama prodi dan nama pembimbingnya
     public function getUsersWithDetails($user_role = null, $prodi_id = null, $filterNama = null, $filterProdi = null, $filterRole = null, $perPage = 0, $sort = 'nama', $order = 'ASC')
     {
-        $builder = $this->select('users.*, prodi.nama_prodi')
+        $builder = $this->select('users.*, prodi.nama_prodi, (
+                        SELECT GROUP_CONCAT(DISTINCT p2.nama_prodi SEPARATOR \', \')
+                        FROM penugasan_magang pm
+                        JOIN users u2 ON u2.id = pm.taruna_id
+                        JOIN prodi p2 ON p2.id = u2.prodi_id
+                        WHERE pm.pembimbing_id = users.id AND u2.prodi_id != users.prodi_id
+                    ) as prodi_tambahan')
                         ->join('prodi', 'prodi.id = users.prodi_id', 'left');
 
         if ($user_role === 'superadmin') {

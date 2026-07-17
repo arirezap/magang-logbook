@@ -188,9 +188,28 @@
                                     </div>
                                 </td>
                                 <td class="py-3">
-                                    <div class="text-secondary" style="font-size: 0.9rem;"><?= esc($user['nama_prodi']) ?></div>
+                                    <div class="d-flex flex-wrap gap-2 align-items-center">
+                                        <?php if(!empty($user['nama_prodi'])): ?>
+                                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-1" style="font-size: 0.8rem; font-weight: 600;" title="Prodi Utama">
+                                                <?= esc($user['nama_prodi']) ?>
+                                            </span>
+                                        <?php else: ?>
+                                            <span class="text-secondary" style="font-size: 0.9rem;">-</span>
+                                        <?php endif; ?>
+                                        
+                                        <?php if(!empty($user['prodi_tambahan'])): ?>
+                                            <?php 
+                                            $tambahan = explode(',', $user['prodi_tambahan']);
+                                            foreach($tambahan as $pt): 
+                                            ?>
+                                                <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-3 py-1" style="font-size: 0.8rem; font-weight: 500;" title="Prodi Bimbingan">
+                                                    <?= esc(trim($pt)) ?>
+                                                </span>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
+                                    </div>
                                     <?php if(!empty($user['kelas'])): ?>
-                                        <div class="fw-bold text-dark mt-0.5" style="font-size: 0.85rem;">Kelas <?= esc($user['kelas']) ?></div>
+                                        <div class="fw-bold text-dark mt-2" style="font-size: 0.85rem;">Kelas <?= esc($user['kelas']) ?></div>
                                     <?php endif; ?>
                                 </td>
                                 <td class="py-3 text-secondary" style="font-size: 0.9rem;">

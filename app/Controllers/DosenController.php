@@ -37,13 +37,29 @@ class DosenController extends BaseController
         ];
         $sortColumn = $validSorts[$sort] ?? 'users.nama';
 
-        $this->userModel->select('users.*, prodi.nama_prodi')
+        $db = \Config\Database::connect();
+        $this->userModel->select('users.*, prodi.nama_prodi, (
+                    SELECT GROUP_CONCAT(DISTINCT p2.nama_prodi SEPARATOR \', \')
+                    FROM penugasan_magang pm
+                    JOIN users u2 ON u2.id = pm.taruna_id
+                    JOIN prodi p2 ON p2.id = u2.prodi_id
+                    WHERE pm.pembimbing_id = users.id AND u2.prodi_id != users.prodi_id
+                ) as prodi_tambahan')
                 ->join('prodi', 'prodi.id = users.prodi_id', 'left')
                 ->where('users.role', 'pembimbing')
                 ->orderBy($sortColumn, $order);
                 
-        if ($role === 'admin_prodi' || $role === 'kaprodi') {
-            $this->userModel->where('users.prodi_id', session()->get('prodi_id'));
+        if (in_array('admin_prodi', [$role, $role_kedua]) || in_array('kaprodi', [$role, $role_kedua])) {
+            $prodi_id = session()->get('prodi_id');
+            $this->userModel->groupStart()
+                            ->where('users.prodi_id', $prodi_id)
+                            ->orWhere("users.id IN (
+                                SELECT pm.pembimbing_id 
+                                FROM penugasan_magang pm 
+                                JOIN users u2 ON u2.id = pm.taruna_id 
+                                WHERE u2.prodi_id = " . $db->escape($prodi_id) . "
+                            )", null, false)
+                            ->groupEnd();
         }
 
         // Filter Data by Prodi & Nama (hanya untuk superadmin/direktur/wadir/kabag)

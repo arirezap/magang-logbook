@@ -124,11 +124,29 @@
                                     <div class="text-muted" style="font-size:0.8rem;"><i class="bi bi-person-vcard me-1"></i>NIP: <?= esc($d['nomor_induk']) ?></div>
                                 </td>
                                 <td class="py-3">
-                                    <div class="d-flex align-items-center gap-2">
+                                    <div class="d-flex align-items-center flex-wrap gap-2">
                                         <div class="bg-light text-primary p-2 rounded-circle" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
                                             <i class="bi bi-building"></i>
                                         </div>
-                                        <span class="fw-semibold text-dark" style="font-size: 0.9rem;"><?= esc($d['nama_prodi'] ?? 'Umum / Semua Prodi') ?></span>
+                                        
+                                        <?php if(!empty($d['nama_prodi'])): ?>
+                                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-1" style="font-size: 0.8rem; font-weight: 600;" title="Prodi Utama">
+                                                <?= esc($d['nama_prodi']) ?>
+                                            </span>
+                                        <?php else: ?>
+                                            <span class="text-secondary" style="font-size: 0.9rem;">Umum / Semua Prodi</span>
+                                        <?php endif; ?>
+
+                                        <?php if(!empty($d['prodi_tambahan'])): ?>
+                                            <?php 
+                                            $tambahan = explode(',', $d['prodi_tambahan']);
+                                            foreach($tambahan as $pt): 
+                                            ?>
+                                                <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-3 py-1" style="font-size: 0.8rem; font-weight: 500;" title="Prodi Bimbingan">
+                                                    <?= esc(trim($pt)) ?>
+                                                </span>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
                                     </div>
                                 </td>
                                 <td class="py-3 text-muted" style="font-size: 0.85rem;">
