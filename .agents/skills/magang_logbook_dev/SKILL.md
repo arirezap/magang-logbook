@@ -47,18 +47,19 @@ Untuk setup awal proyek hasil kloning:
 - **Istilah:** Gunakan **NOTAR** (Nomor Taruna), dilarang menggunakan "NIT".
 - **Penamaan Kelas Dinamis:** Selalu gabungkan singkatan Prodi dan Kelas untuk *display*. Contoh: "Teknologi Otomotif" Kelas "A" menjadi **"TO A"**, "Teknologi Rekayasa Otomotif" Kelas "B" menjadi **"TRO B"**, "Rekayasa Sistem Transportasi Jalan" menjadi **"RSTJ"**.
 - **Format Tanggal:** Gunakan pelokalan Bahasa Indonesia di sisi *frontend* (misal: "07 Jul 2026").
-- **File Upload:** Untuk menghemat ruang *server hosting* (cPanel), **DILARANG** membuat fitur *upload file fisik* ke lokal folder. Sebagai gantinya, wajib menggunakan metode **"Input Link Google Drive"** dengan tipe data *string URL*.
+- **File Upload (Dokumentasi Logbook):** Wajib menggunakan *local storage* yang disimpan di folder `public/uploads/logbook`. File yang diizinkan hanya JPG/PNG/PDF dengan batas maksimal 5MB. Gunakan fungsi enkripsi nama file bawaan CI4 (`getRandomName()`) agar unik. DILARANG menggunakan tautan Google Drive lagi.
 - **Aturan Bisnis Logbook:** 
   - Tidak boleh ada laporan (logbook) ganda di tanggal yang sama untuk satu *user*.
   - Status logbook meliputi: `pending`, `disetujui`, `revisi`, `ditolak`.
   - Logbook hanya bisa diedit dan dihapus oleh Taruna jika statusnya BUKAN "disetujui" (contoh: pending, revisi, ditolak bisa diedit/dihapus).
 - **Logika Pengurutan Data (Sorting):**
   - **Laporan Global:** Diurutkan berdasarkan tanggal pelaksanaan kegiatan logbook secara menurun (`logbooks.tanggal DESC`) agar mempermudah pemantauan aktivitas harian terbaru.
-  - **Validasi Pembimbing:** Diurutkan berdasarkan tanggal waktu pengiriman data secara menurun (`logbooks.created_at DESC`) agar pembimbing segera mengetahui laporan mana yang baru saja dikirim oleh Taruna untuk diverifikasi.
-- **Sistem Filtering Laporan Global:**
-  - Halaman Laporan Global menyediakan panel filter pencarian dinamis yang dibungkus dalam kontainer *Card* untuk menjaga kerapian tata letak UI/UX.
-  - Filter yang tersedia meliputi: Tanggal Pelaporan (`tanggal`), Nama Taruna (`nama`), Kelas (`kelas`), dan Program Studi (`prodi`).
-  - Filter Program Studi (`prodi`) hanya dimunculkan khusus untuk akun dengan level akses `superadmin` dan `pejabat`. Untuk level `admin_prodi`, data otomatis tersaring berdasarkan prodi masing-masing.
+  - **Validasi Pembimbing (Penting):** Diurutkan KRONOLOGIS dengan prioritas ganda: Pertama berdasarkan tanggal (`tanggal DESC`), kedua berdasarkan status (`FIELD(status, 'pending', 'revisi', 'ditolak', 'disetujui') ASC`). Ini memastikan logbook terbaru tampil lebih dulu, namun dalam hari yang sama, yang berstatus `pending` akan muncul paling atas.
+- **Sistem Filtering & Pagination Laporan:**
+  - Laporan Dosen Pembimbing WAJIB menggunakan **Infinite Scroll** dikombinasikan dengan **Skeleton Loading** untuk UI/UX yang *seamless*. Halaman tidak boleh terputus oleh navigasi angka yang kaku. Pastikan mengirim parameter grup pagination (misal: `page_logbooks`) dengan benar pada *Fetch API*.
+  - Pembaruan status Validasi & Catatan Dosen **WAJIB menggunakan AJAX/Fetch API** agar halaman tidak me-*reload* (yang dapat me-*reset* posisi *scroll* pengguna).
+- **Multi-Prodi Dosen Pembimbing:**
+  - Dosen tetap memiliki 1 prodi utama (rumpun keilmuan). Namun, saat di-plot membimbing taruna lintas prodi (di tabel `penugasan_magang`), nama dosen tersebut akan otomatis terdaftar dan bisa dikelola juga di halaman data prodi taruna tersebut. Gunakan pembedaan warna badge/indikator untuk membedakan status "Homebase/Utama" dan "Lintas Prodi" pada antarmuka.
 
 ## 7. Standar Clean Code & Maintainability
 - **Pemisahan Gaya (CSS):** DILARANG menggunakan *inline style* (seperti `style="color:red;"`) atau meletakkan blok `<style>` berukuran besar di dalam file *View*. Semua custom styling wajib disatukan ke dalam `public/css/style.css` menggunakan *class*.

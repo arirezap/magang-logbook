@@ -27,3 +27,10 @@ This project follows a "UI/UX Pro Max" guideline with a clean, modern, and profe
 - **Micro-interactions**: Use subtle transitions (	ransition: all 0.2s ease) on hovers, such as lifting cards (	ransform: translateY(-2px)) or slightly fading buttons (opacity: 0.85).
 
 When creating new features or modifying existing ones, STRICTLY adhere to this color palette and component styling to maintain consistency.
+
+## Logbook System Core Logics
+Always follow these logic and behavioral rules when editing Logbook-related features:
+1. **File Uploads**: All Taruna documentations MUST be uploaded locally to `public/uploads/logbook/` using CI4's `getRandomName()` for encryption. Allowed formats are JPG/PNG/PDF (max 5MB). DO NOT use Google Drive links.
+2. **Validasi (AJAX & Infinite Scroll)**: The Validasi Logbook page MUST use Fetch API (AJAX) for updating status or notes. DO NOT reload the page on submission. For loading data, use Infinite Scroll (Skeleton loading) combined with CI4 Pagination.
+3. **Pagination Parameter (CRITICAL)**: When using CodeIgniter 4 `$builder->paginate($perPage, 'group_name')`, your frontend JS MUST send the query parameter as `page_group_name` (e.g., `page_logbooks`), NOT just `page`. Otherwise, the backend will always serve page 1.
+4. **Sorting Logic**: Logbooks in Validasi must be chronologically ordered (`tanggal DESC`) but within the same day, prioritize statuses using `FIELD(status, 'pending', 'revisi', 'ditolak', 'disetujui') ASC`.
